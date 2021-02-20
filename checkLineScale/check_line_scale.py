@@ -9,16 +9,16 @@ import numpy as np
 import sys
 
 dirpath = "./test-photo/"
-imgname = "test1"
+imgname = "page-2"
 # imgname = "page-1-crop"
 
 image = cv2.imread(dirpath+ imgname+'.png')
 image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-block_size = 9
+block_size = 13
 c = 0
 
-region = [90, 20, 40, 50]
+region = [1190, 1220, 560, 280]
 line_scale = 0
 for i in range(1):
     thresh = cv2.adaptiveThreshold(
@@ -31,7 +31,7 @@ for i in range(1):
                         )
     
     print("threshdhold size:",thresh.shape)
-    line_scale += 20
+    line_scale += 150
     # if vertical 
     # size = thresh.shape[0] // line_scale
     # el = cv2.getStructuringElement(cv2.MORPH_RECT, (1, size))
@@ -39,15 +39,17 @@ for i in range(1):
     # if horizontal
     size = thresh.shape[1] // line_scale
     el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1))
-    name="h"+str(line_scale)
-
-    region_mask = np.zeros(thresh.shape)
-    x, y, w, h = region
-    region_mask[y : y + h, x : x + w] = 1
-    print( "1 count:",np.count_nonzero(thresh>0) )
-    thresh = np.multiply(thresh, region_mask)
+    name="hh"+str(line_scale)
     
-    print( "1 count:",np.count_nonzero(thresh>0) )
+    r = True#False
+    if r:
+        region_mask = np.zeros(thresh.shape)
+        x, y, w, h = region
+        region_mask[y : y + h, x : x + w] = 1
+        print( "1 count:",np.count_nonzero(thresh>0) )
+        thresh = np.multiply(thresh, region_mask)
+        
+        # print( "1 count:",np.count_nonzero(thresh>0) )
 
     thresh = cv2.erode(thresh, el)
     thresh = cv2.dilate(thresh, el) #오프닝
@@ -81,11 +83,12 @@ for i in range(1):
     # j = input()
     
     t_mark = thresh[ y:y+h, x:x+w]
+    # whereDefault = np.where(t_mark > 0)
+    # print(whereDefault)
     np.set_printoptions(threshold=sys.maxsize)
-    
     print(t_mark)
     
-    cv2.imshow("line scale image", thresh)# cv2.cvtColor(thresh, cv2.COLOR_BGR2RGB))
+    # cv2.imshow("line scale image", thresh)# cv2.cvtColor(thresh, cv2.COLOR_BGR2RGB))
     # img = cv2.hconcat([cv2.cvtColor(image, cv2.COLOR_BGR2RGB), cv2.cvtColor(thresh, cv2.COLOR_BGR2RGB)])
     # cv2.imshow("line scale image "+str(line_scale), cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     print(">>>",line_scale)
