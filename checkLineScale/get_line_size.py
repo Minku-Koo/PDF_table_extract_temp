@@ -27,14 +27,14 @@ class GetLineSize:
         self.image_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY) # image to gray
         self.block_size = block_size # 주변 블록 사이즈
         self.c = c # 가감 상수
-        self.div_line_scale = 140 
+        self.div_line_scale = 120
         
         self.line_sizes = []
         self.line_size = []
         self.line_scale = 15
         
         self.main()
-    
+        
     
     # line size 계산
     def main(self):
@@ -49,7 +49,8 @@ class GetLineSize:
         
         self.line_sizes = horizontal_size + vertical_size
         self.line_size = list(set(self.line_sizes))
-        self.line_scale = 15 # function
+        
+        self.line_scale = 120 # function
         
         return 0
     
@@ -110,7 +111,7 @@ class GetLineSize:
                 tempList.append(index) #선 두께 추가
             temp = index
         size_list.append(len(tempList)) #마지막에 감지된 선 추가
-        print("size_list:",size_list)
+        # print("size_list:",size_list)
         return size_list
     
     def calc_line_size(self, threshold): # case horizontal
@@ -128,6 +129,21 @@ class GetLineSize:
         # opening
         threshold = cv2.erode(threshold, el) # erosion
         threshold = cv2.dilate(threshold, el) # dilation
+        
+        try:
+            _, contours, _ = cv2.findContours(
+                threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+        except ValueError:
+            # for opencv backward compatibility
+            contours, _ = cv2.findContours(
+                threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+        
+        for c in contours:
+            # print("c>",cv2.boundingRect(c))
+            pass
+        
         
         self.show_plot(threshold)
         
@@ -163,7 +179,7 @@ class GetLineSize:
         
         # line size 계산하고 반환
         return self.line_size_list(line_detected)
-        
+    
 
 if __name__ ==  "__main__":
     dirpath = "./test-photo/"
@@ -175,6 +191,8 @@ if __name__ ==  "__main__":
     p0=[360, 210]
     p1=[420, 333]
     
+    p0=[333, 400]
+    p1=[420, 550]
     
     regions = [p0[0],p1[0], p0[1],p1[1]]
     

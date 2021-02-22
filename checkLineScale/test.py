@@ -16,13 +16,13 @@ def pprint(threshold, a, b, x, y):
     for th in threshold[a:b]:
         print(index,"/",th[x:y])
         index+=1
-    print("**"*20)
-    print("**"*20)
+    # print("**"*20)
+    # print("**"*20)
 
 dirpath = "./test-photo/"
 
 imgname = "erosion"
-
+imgname = "short"
 image = cv2.imread(dirpath+imgname+'.png')
 image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -36,20 +36,35 @@ threshold = cv2.adaptiveThreshold(
                     )
 
 
-show_plot( threshold, "threshold")
-pprint(threshold, 20, 50, 20, 60)
+z,x,c,v = 26, 34,32 ,55
+z,x,c,v = 180, 185, 380, 386
 
-linescale = 30
+show_plot( threshold, "threshold")
+pprint(threshold, z,x,c,v )
+
+linescale = 10
+'''
 size = threshold.shape[1] // linescale
-print("size",size)
 el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
+
+'''
+size = threshold.shape[0] // linescale
+el = cv2.getStructuringElement(cv2.MORPH_RECT, ( 1, size ))
+
+
+# size = 20#size
+print("size",size)
+print("threshold",threshold.shape)
+
 threshold = cv2.erode(threshold, el) # erosion
 show_plot( threshold, "after erosion")
-pprint(threshold, 20, 50, 20, 60)
+print("-"*30,"After erosion","-"*30)
+pprint(threshold, z,x,c,v )
 
 threshold = cv2.dilate(threshold, el) # dilation
 show_plot( threshold, "after dilate")
-# pprint(threshold, 20, 50, 20, 60)
+print("-"*30,"After dilate","-"*30)
+pprint(threshold, z,x,c,v )
 
 # plt.imshow(threshold)
 # plt.imshow(cv2.cvtColor(threshold, cv2.COLOR_BGR2RGB))
