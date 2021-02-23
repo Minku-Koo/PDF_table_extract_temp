@@ -27,7 +27,7 @@ class GetLineSize:
         self.image_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY) # image to gray
         self.block_size = block_size # 주변 블록 사이즈
         self.c = c # 가감 상수
-        self.div_line_scale = 120
+        self.div_line_scale = 150
         
         self.line_sizes = []
         self.line_size = []
@@ -111,6 +111,7 @@ class GetLineSize:
                 tempList.append(index) #선 두께 추가
             temp = index
         size_list.append(len(tempList)) #마지막에 감지된 선 추가
+        print(size_list)
         # print("size_list:",size_list)
         return size_list
     
@@ -177,6 +178,8 @@ class GetLineSize:
                 line_detected[lineSize].append(index)
             else: line_detected[lineSize] = [index]
         
+        print("line_detected", line_detected)
+        
         # line size 계산하고 반환
         return self.line_size_list(line_detected)
     
@@ -185,7 +188,7 @@ if __name__ ==  "__main__":
     dirpath = "./test-photo/"
     
     imgname = "page-2"
-    imgname = "line2"
+    imgname = "short"
     
     
     p0=[360, 210]

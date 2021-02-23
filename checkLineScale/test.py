@@ -8,7 +8,13 @@ def show_plot( threshold, title):
         resize_img = cv2.resize(threshold, (500, 500))
         # cv2.imshow("show image :"+title, resize_img)
         # cv2.waitKey(0)
-        plt.imshow(threshold)
+        out = threshold.copy() 
+        out = 255 - out
+        
+        # threshold
+
+        plt.imshow(out)
+        cv2.imwrite('./h2-'+title+'.png', out)
         plt.show()
 
 def pprint(threshold, a, b, x, y):
@@ -39,15 +45,14 @@ threshold = cv2.adaptiveThreshold(
 z,x,c,v = 26, 34,32 ,55
 z,x,c,v = 180, 185, 380, 386
 
-show_plot( threshold, "threshold")
+# show_plot( threshold, "org")
 pprint(threshold, z,x,c,v )
 
-linescale = 10
-'''
-size = threshold.shape[1] // linescale
-el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
+linescale = 15
 
-'''
+# size = threshold.shape[1] // linescale
+# el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
+
 size = threshold.shape[0] // linescale
 el = cv2.getStructuringElement(cv2.MORPH_RECT, ( 1, size ))
 
