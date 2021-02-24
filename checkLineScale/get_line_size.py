@@ -1,38 +1,53 @@
-﻿# get line size
-# 20200220
+﻿
+'''
+# get line size
+# start : 20200220
 # minku Koo
 
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
 
-'''
-라인 조건
+Line 조건
 1. 영역 벽에 붙어있음
 2. 가장 긴 선
 
 horizontal, vertical 구분
 vertical 경우 -> horizontal 구조로 전환 후 계산
-
 '''
 
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
 class GetLineSize:
-    def __init__(self, filename, regions, block_size = 15, c=0):
+    """
+    Parameters
+        filename <str> : PNG file path 
+        regions <int in list> : coordinate on image file 
+        block_size <int> : block size for cv2.adaptiveThreshold, must odd number
+    
+    it can returns
+        line_sizes <dict>
+            - key : maximum line width (horizontal, vertical)
+            - value : line size(=thick) each line
+        line_size <dict>
+            - key : maximum line width (horizontal, vertical)
+            - value : line size (Deduplication)
+    """
+    
+    def __init__(self, filename, regions, block_size = 15):
         self.filename = filename # file path
         # x1, x2, y1, y2 
         self.p0, self.p1 = [regions[0], regions[2]], [regions[1], regions[3]]
+        
         self.image = cv2.imread(self.filename) # read png file
         self.image_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY) # image to gray
+        
         self.block_size = block_size # 주변 블록 사이즈
-        self.c = c # 가감 상수
         self.div_line_scale = 150
         
-        self.line_sizes = []
-        self.line_size = []
-        self.line_scale = 15
+        self.line_sizes = {} # 모든 line의 두께
+        self.line_size = {} # line 두께 중복 제거
         
+        # main 함수 자동 실행
         self.main()
         
     
@@ -41,16 +56,15 @@ class GetLineSize:
         threshold = self.getThreshold(self.image_gray)
         
         #가로선 두께 계산
-        horizontal_size = self.calc_line_size(threshold)
+        max_size, horizontal_size = self.calc_line_size(threshold)
+        self.line_sizes[max_size] = horizontal_size
+        self.line_size[max_size] = list(set(horizontal_size))
         # 회전
         threshold = self.vertical_to_horizontal(threshold)
         #세로선 두께 계산
-        vertical_size = self.calc_line_size(threshold)
-        
-        self.line_sizes = horizontal_size + vertical_size
-        self.line_size = list(set(self.line_sizes))
-        
-        self.line_scale = 120 # function
+        max_size, vertical_size = self.calc_line_size(threshold)
+        self.line_sizes[max_size] = vertical_size
+        self.line_size[max_size] = list(set(vertical_size))
         
         return 0
     
@@ -62,40 +76,30 @@ class GetLineSize:
                         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  #평균 계산 방법 / ADAPTIVE_THRESH_MEAN_C
                         cv2.THRESH_BINARY, # 흑백 반전 여부 /THRESH_BINARY_INV
                         self.block_size, # 블록 사이즈 
-                        self.c # 가감 상수
+                        0 # 가감 상수
                     )
         return threshold
     
     # 반시계 방향으로 돌려줌, 세로선 to 가로선
     def vertical_to_horizontal(self, threshold):
-        convert = [] #회전한 threshold
+        convert = [] #회전한 threshold 초기화
         for i in range(threshold.shape[1]):
             temp=[]
-            for th in threshold:
-                temp.append(th[i])
+            for th in threshold: temp.append(th[i])
             convert.append(temp)
         convert.reverse()
         convert = np.array(convert)
         
         # 좌표값 변경
         temp = self.p0
-        self.p0 = [self.p0[1], convert.shape[1]-self.p1[0]]
-        self.p1 = [self.p1[1], convert.shape[1]-temp[0]]
-        
+        self.p0 = [self.p0[1], convert.shape[0]-self.p1[0]]
+        self.p1 = [self.p1[1], convert.shape[0]-temp[0]]
         return convert
-    
-    # 나중에 삭제할 것 > 호출한 부분도 삭제할 것
-    def show_plot(self, threshold):
-        resize_img = cv2.resize(threshold, (500, 500))
-        # cv2.imshow("show image", resize_img)
-        # cv2.waitKey(0)
-        
-        pass
     
     # 영역에서 라인 두께 리스트 반환
     def line_size_list(self, dict):
         # 아무 선 감지 안된 경우
-        if dict == {}: return []
+        if dict == {}: return -1, []
         
         #최대 선 길이
         max_size = max(dict.keys())
@@ -111,42 +115,24 @@ class GetLineSize:
                 tempList.append(index) #선 두께 추가
             temp = index
         size_list.append(len(tempList)) #마지막에 감지된 선 추가
-        print(size_list)
-        # print("size_list:",size_list)
-        return size_list
+        # line 최대값, 두께 리스트 반환
+        return max_size, size_list
     
     def calc_line_size(self, threshold): # case horizontal
         size = threshold.shape[1] // self.div_line_scale
         el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
-        self.show_plot(threshold)
         
         # set region / remove except regions
         region_mask = np.zeros(threshold.shape)
+        
         x1, y1 = self.p0[0], self.p0[1]
         x2, y2 = self.p1[0], self.p1[1]
-        region_mask[y1 : y2, x1 : x2] = 1
+        region_mask[y1-1 : y2, x1-1 : x2] = 1
         threshold = np.multiply(threshold, region_mask)
         
-        # opening
+        # opening / 모폴로지 연산
         threshold = cv2.erode(threshold, el) # erosion
         threshold = cv2.dilate(threshold, el) # dilation
-        
-        try:
-            _, contours, _ = cv2.findContours(
-                threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-        except ValueError:
-            # for opencv backward compatibility
-            contours, _ = cv2.findContours(
-                threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-        
-        for c in contours:
-            # print("c>",cv2.boundingRect(c))
-            pass
-        
-        
-        self.show_plot(threshold)
         
         threshold_mark = threshold[ y1:y2, x1:x2 ]
         horizonSize = threshold_mark.shape[1] # 영역 가로 픽셀값
@@ -172,13 +158,11 @@ class GetLineSize:
                 if cell[1] != temp: 
                     lineSize = cell[0]+1 
                     break
-            
+
             # 계산된 line width와line index를 저장
             if lineSize in line_detected.keys(): 
                 line_detected[lineSize].append(index)
             else: line_detected[lineSize] = [index]
-        
-        print("line_detected", line_detected)
         
         # line size 계산하고 반환
         return self.line_size_list(line_detected)
@@ -188,14 +172,10 @@ if __name__ ==  "__main__":
     dirpath = "./test-photo/"
     
     imgname = "page-2"
-    imgname = "short"
     
     
-    p0=[360, 210]
-    p1=[420, 333]
-    
-    p0=[333, 400]
-    p1=[420, 550]
+    p0=[1500, 2500]
+    p1=[1700, 2680]
     
     regions = [p0[0],p1[0], p0[1],p1[1]]
     
@@ -203,6 +183,5 @@ if __name__ ==  "__main__":
     print("**--- after class ---")
     print(getlinesize.line_size)
     print(getlinesize.line_sizes)
-    print(getlinesize.line_scale)
 
 
