@@ -137,6 +137,7 @@ class GetLineSize:
         threshold_mark = threshold[ y1:y2, x1:x2 ]
         horizonSize = threshold_mark.shape[1] # 영역 가로 픽셀값
         
+        
         # key: line size / value: line index
         line_detected = {} # 감지된 line 저장
         index = -1 # 세로 인덱스(per pixel) , for문 처음에 1 추가하면서 시작하기 때문에 -1로 설정

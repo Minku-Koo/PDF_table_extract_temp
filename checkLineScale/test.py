@@ -28,7 +28,8 @@ def pprint(threshold, a, b, x, y):
 dirpath = "./test-photo/"
 
 imgname = "page-2"
-# imgname = "short"
+imgname = "short"
+imgname = "ls"
 # imgname = "123"
 image = cv2.imread(dirpath+imgname+'.png')
 image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -49,13 +50,13 @@ z,x,c,v = 180, 185, 380, 386
 show_plot( threshold, "org")
 pprint(threshold, z,x,c,v )
 
-linescale = 150
+linescale = 18
 
-size = threshold.shape[1] // linescale
-el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
+# size = threshold.shape[1] // linescale
+# el = cv2.getStructuringElement(cv2.MORPH_RECT, ( size, 1 ))
 
-# size = threshold.shape[0] // linescale
-# el = cv2.getStructuringElement(cv2.MORPH_RECT, ( 1, size ))
+size = threshold.shape[0] // linescale
+el = cv2.getStructuringElement(cv2.MORPH_RECT, ( 1, size ))
 
 
 # size = 20#size
@@ -68,7 +69,7 @@ print("-"*30,"After erosion","-"*30)
 pprint(threshold, z,x,c,v )
 
 threshold = cv2.dilate(threshold, el) # dilation
-# show_plot( threshold, "after dilate")
+show_plot( threshold, "after dilate")
 print("-"*30,"After dilate","-"*30)
 pprint(threshold, z,x,c,v )
 
