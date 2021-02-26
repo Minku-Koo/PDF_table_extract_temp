@@ -2,6 +2,7 @@
 '''
 # get line size
 # start : 20200220
+# update : 20210226
 # minku Koo
 
 Line Condition
@@ -173,6 +174,7 @@ class GetLineSize:
 if __name__ ==  "__main__":
     print("I AM GET_LINE_SIZE MAIN")
     '''
+    # How to use?
     dirpath = "./test-photo/"
     imgname = "page-2"
     
