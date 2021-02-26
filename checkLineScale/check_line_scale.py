@@ -1,5 +1,4 @@
-﻿
-'''
+﻿'''
 # check line scale
 # start : 20200225
 # update : 20210226

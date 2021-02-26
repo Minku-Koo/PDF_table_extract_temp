@@ -1,11 +1,10 @@
-﻿
-'''
+﻿'''
 # get line size
 # start : 20200220
 # update : 20210226
 # minku Koo
 
-Line Condition
+Line Conditions
 1. 영역 벽에 선이 붙어있음
 2. 영역 내에서 가장 긴 선
 
