@@ -2,6 +2,7 @@
 '''
 # check line scale
 # start : 20200225
+# update : 20210226
 # minku Koo
 '''
 
@@ -166,6 +167,7 @@ class GetLineScale:
 if __name__ ==  "__main__":
     print("I AM CHECK_LINE_SCALE MAIN")
     '''
+    # How to use?
     dirpath = "./test-photo/"
     imgname = "page-2"
     
