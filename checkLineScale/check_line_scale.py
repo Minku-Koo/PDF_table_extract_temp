@@ -9,7 +9,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-class getLineScale:
+class GetLineScale:
     """
     Parameters
         filename <str> : PNG file path 
@@ -19,6 +19,10 @@ class getLineScale:
     user can get value
         line_size <tuple> : get line coordinate and width, height (x, y, w, h)
         line_scale <int> : get adapted minimum line scale value
+        
+        if no line detected
+             line_size = [-1]
+             line_scale = -1
     """
     
     def __init__(self, filename, regions, block_size = 15):
@@ -33,8 +37,8 @@ class getLineScale:
         self.div_line_scale = 150 # line_scale value for erosion and dilation
         self.direction = "v" #  detected line direction
         self.pick_line = [] # detected line in regions
-        self.line_size = [] # detected line size (x, y, w, h)
-        self.line_scale = 15 # adapted  mininum line scale (basic value)
+        self.line_size = [] # detected line total size (x, y, w, h)
+        self.line_scale = 15 # adapted  mininum line scale (default = 15)
         
         # main 함수 자동 실행
         self.main()
@@ -49,10 +53,11 @@ class getLineScale:
         elif self.find_direction(threshold, "v"): pass # vertical is default, pass
         else: # no line detected
             self.line_size = [-1]
+            self.line_scale = -1
             return -1
         
         self.line_size = self.calc_line_size(threshold)
-        self.adapted_line_scale(threshold)
+        self.line_scale = self.adapted_line_scale(threshold)
         return 0
     
     # Threshold계산
@@ -109,6 +114,7 @@ class getLineScale:
             
         threshold = np.unique(threshold) # 중복 제거
         
+        # 중복 제거하고 모두 0이면 false / 0 이외 값이 있으면 (line 존재하는 것이므로) true
         if len(threshold)==1: return False
         else: return True
         
@@ -130,58 +136,47 @@ class getLineScale:
         threshold = cv2.erode(threshold, el) # erosion
         threshold = cv2.dilate(threshold, el) # dilation
         
-        # plt.imshow(threshold)
-        # plt.show()
-        
         contours = self.getContours( threshold)
         cont = []
         for c in contours:
             c_poly = cv2.approxPolyDP(c, 3, True) #테두리 단순화
             x, y, w, h = cv2.boundingRect(c_poly) # 주어진 점들 (테두리) 감싸는 최소 사각형 면적
-            cont.append((x, y, w, h))
+            cont.append((x, y, w, h)) # 페이지 내 모든 line 추가
             
         pick_x, pick_y = self.pick_line[0] ,self.pick_line[1] 
         for line in cont:
+            # 모든 line중에서 pick_line 범위를 포함하는 line 구하기
             if pick_x < line[0] or pick_x > line[0]+line[2] : continue
             if pick_y >= line[1] and pick_y <= line[1]+line[3] : return line
-                
+        
+        # pick line 포함하는 line이 없는 경우
         return [-1]
         
     def adapted_line_scale(self, threshold):
-        if self.line_size == [-1]:
+        if self.line_size == [-1]: # 선택된 line이 없는 경우
             return -1
         
-        if self.direction == "h":
-            self.line_scale = threshold.shape[1] // self.line_size[2] +1
-        elif self.direction == "v":
-            self.line_scale = threshold.shape[0] // self.line_size[3] +1
+        if self.direction == "h": # if horizontal
+            return threshold.shape[1] // self.line_size[2] +1
+        elif self.direction == "v": # if vertical
+            return threshold.shape[0] // self.line_size[3] +1
         
-        return 0
+        return -1 # anyway error
 
 if __name__ ==  "__main__":
+    print("I AM CHECK_LINE_SCALE MAIN")
+    '''
     dirpath = "./test-photo/"
-    
     imgname = "page-2"
-    imgname = "short"
-    imgname = "ls"
-    # h
-    p0=[1420, 780]
-    p1=[1500, 840]
-    # v
-    p0=[1620, 2690]
-    p1=[1700, 2730]
     
-    
-    p0=[745, 150]
-    p1=[758 , 160]
-    
-    p0=[820, 50]
-    p1=[850 , 74]
+    p0=[820, 55]
+    p1=[840 , 62]
     
     regions = [p0[0],p1[0], p0[1],p1[1]]
     
-    getlinesize = getLineScale(dirpath+ imgname+'.png', regions)
-    print("result>", getlinesize.line_size)
-    print("line_scale>", getlinesize.line_scale)
+    getlinescale = GetLineScale(dirpath+ imgname+'.png', regions)
+    print("line size >", getlinescale.line_size)
+    print("adapted line scale >", getlinescale.line_scale)
+    '''
 
 

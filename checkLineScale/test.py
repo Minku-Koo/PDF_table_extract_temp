@@ -10,8 +10,6 @@ def show_plot( threshold, title):
         # cv2.waitKey(0)
         out = threshold.copy() 
         out = 255 - out
-        
-        # threshold
 
         plt.imshow(out)
         # cv2.imwrite('./h2-'+title+'.png', out)
@@ -44,7 +42,6 @@ threshold = cv2.adaptiveThreshold(
                     )
 
 
-z,x,c,v = 26, 34,32 ,55
 z,x,c,v = 180, 185, 380, 386
 
 show_plot( threshold, "org")

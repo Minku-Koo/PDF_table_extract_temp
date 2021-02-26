@@ -4,10 +4,9 @@
 # start : 20200220
 # minku Koo
 
-
-Line 조건
-1. 영역 벽에 붙어있음
-2. 가장 긴 선
+Line Condition
+1. 영역 벽에 선이 붙어있음
+2. 영역 내에서 가장 긴 선
 
 horizontal, vertical 구분
 vertical 경우 -> horizontal 구조로 전환 후 계산
@@ -24,7 +23,7 @@ class GetLineSize:
         regions <int in list> : coordinate on image file 
         block_size <int> : block size for cv2.adaptiveThreshold, must odd number
     
-    it can returns
+    user can get value
         line_sizes <dict>
             - key : maximum line width (horizontal, vertical)
             - value : line size(=thick) each line
@@ -90,7 +89,7 @@ class GetLineSize:
         convert.reverse()
         convert = np.array(convert)
         
-        # 좌표값 변경
+        # 좌표값 변경 / 반시계방향 90도 회전
         temp = self.p0
         self.p0 = [self.p0[1], convert.shape[0]-self.p1[0]]
         self.p1 = [self.p1[1], convert.shape[0]-temp[0]]
@@ -107,6 +106,7 @@ class GetLineSize:
         # 연속된 선 리스트, 인덱스
         tempList, temp = [], dict[max_size][0]-1
         size_list = [] # 선 두께 리스트
+        
         for index in dict[max_size]: 
             if index != temp+1: #연속되지 않은 경우
                 size_list.append(len(tempList))
@@ -114,8 +114,9 @@ class GetLineSize:
             else: #연속된 경우
                 tempList.append(index) #선 두께 추가
             temp = index
+            
         size_list.append(len(tempList)) #마지막에 감지된 선 추가
-        # line 최대값, 두께 리스트 반환
+        # line 길이 최대값, line 두께 리스트 반환
         return max_size, size_list
     
     def calc_line_size(self, threshold): # case horizontal
@@ -124,7 +125,6 @@ class GetLineSize:
         
         # set region / remove except regions
         region_mask = np.zeros(threshold.shape)
-        
         x1, y1 = self.p0[0], self.p0[1]
         x2, y2 = self.p1[0], self.p1[1]
         region_mask[y1-1 : y2, x1-1 : x2] = 1
@@ -153,6 +153,7 @@ class GetLineSize:
                 else: line_detected[horizonSize] = [index]
                 continue
             
+            # 테이블 꼭지점 부분에서 line 계산
             lineSize = 0 # line size 초기화
             temp = horizontal[0] # 초기값은 0번째 index로 설정 (비교 위해)
             for cell in enumerate(horizontal):
@@ -170,19 +171,19 @@ class GetLineSize:
     
 
 if __name__ ==  "__main__":
+    print("I AM GET_LINE_SIZE MAIN")
+    '''
     dirpath = "./test-photo/"
-    
     imgname = "page-2"
-    
     
     p0=[1500, 2500]
     p1=[1700, 2680]
     
     regions = [p0[0],p1[0], p0[1],p1[1]]
     
-    getlinesize = GetLineSize(dirpath+ imgname+'.png', regions)
-    print("**--- after class ---")
+    getlinesize = GetLineSize(dirpath+imgname+'.png', regions)
     print(getlinesize.line_size)
     print(getlinesize.line_sizes)
+    '''
 
 
