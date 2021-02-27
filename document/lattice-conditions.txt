@@ -1,0 +1,20 @@
+vertical(수평선) : 수평선이 있는 픽셀을 나타내는 numpy.ndarray 오브젝트
+horizontal(수직선) : 수평선이 있는 픽셀을 나타내는 numpy.ndarray 오브젝트
+
+#find_contours(vertical, horizontal)
+테이블의 경계를 찾음
+1. vertical 과 horizontal를 합연산한 mask(numpy.ndarray) 오브젝트에서 contour를 찾음
+2. contours중 넓이를 기준으로 정렬하여 넓이가 넓은 상위 10개 contour만 사용함
+3. 각각 contour들에 대한 직사각형 경계선 좌표를 반환함
+
+#find_joints(contours, vertical, horizontal)
+각 테이블 경계 내에있는 joint를 찾음
+contours : contour를 나타내는 튜플 리스트 
+1. vertical 과 horizontal를 곱연산한 joints(numpy.ndarray) 오브젝트에서 각 contours의 내부에 있는 contour를 찾음 (교차점)
+2. 교차점이 4개 이하인 contour 제거
+3. 교차점의 직사각형 경계선 좌표를 반환함
+
+#find_line(threshold, regions , direction, line_scale, iterations)
+이미지에 형태 학적 변형을 적용하여 수평선과 수직선을 찾음
+threshold 임계값 이미지를 나타내는 numpy.ndarray
+threshold의 shape(세로, 가로) 값을 line_scale 값으로 나눈 size로 opening(erosion + dilation)을 진행하여 size보다 큰 선만 사용함
