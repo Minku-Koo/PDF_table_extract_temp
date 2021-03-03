@@ -26,8 +26,9 @@ def pprint(threshold, a, b, x, y):
 dirpath = "./test-photo/"
 
 imgname = "page-2"
-imgname = "short"
-imgname = "ls"
+# imgname = "short"
+imgname = "border"
+imgname = "split"
 # imgname = "123"
 image = cv2.imread(dirpath+imgname+'.png')
 image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
