@@ -99,21 +99,6 @@ horizontal_mask, horizontal_segments = find_lines(
 contours = find_contours(vertical_mask, horizontal_mask)
 print("contours::",contours)
 
-# if table has no outside border
-# function make virtual border line
-def make_border(direction, mask, contours):
-    line_size = 2
-    for c in contours:
-        x, y, w, h = c
-        print("this is c:",c)
-        if direction=="v":
-            mask[ y : y+h ,x-line_size : x+line_size ]= 255 # v
-            mask[ y : y+h ,x+w-line_size : x+w+line_size ]= 255 # v
-        elif direction=="h":
-            mask[ y+h-line_size : y+h+line_size, x : x+w ]= 255 #h
-            mask[ y-line_size : y+line_size, x : x+w ]= 255 #h
-    
-    return mask
     
 vertical_mask = addOutline("v", vertical_mask, contours)
 show_plot( vertical_mask)

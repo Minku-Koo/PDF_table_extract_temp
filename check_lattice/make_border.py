@@ -34,11 +34,14 @@ if __name__ ==  "__main__":
     print("I AM MAKE_BORDER MAIN")
     '''
     # How to use?
+    
+    from make_border import addOutline
+    
     # vertical and horizontal mask are made from find_lines()
     contours = find_contours(vertical_mask, horizontal_mask) # method in parser.Lattice() 
     
-    vertical_mask = make_border("v", vertical_mask, contours)
-    horizontal_mask = make_border("h", horizontal_mask, contours)
+    vertical_mask = addOutline("v", vertical_mask, contours)
+    horizontal_mask = addOutline("h", horizontal_mask, contours)
     
     '''
 
