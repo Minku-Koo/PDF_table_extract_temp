@@ -26,6 +26,8 @@ def get_regions(v, page_file):
     x2 = (v['x'] + v['width']) * scalingFactorX
     y2 = abs(v['y'] + v['height'] - imageHeight) * scalingFactorY
     
+    # return f'{min(x1, x2)},{min(y1, y2)},{max(x1, x2)},{max(y1, y2)}'
+    
     return f'{x1},{y1},{x2},{y2}'
     
 def bbox_to_areas(v, bbox, page_file):
