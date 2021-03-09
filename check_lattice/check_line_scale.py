@@ -1,9 +1,9 @@
-﻿'''
+﻿"""
 # check line scale
 # start : 20200225
-# update : 20210226
+# update : 20210310
 # minku Koo
-'''
+"""
 
 import cv2
 import matplotlib.pyplot as plt
@@ -12,11 +12,13 @@ import numpy as np
 class GetLineScale:
     """
     Parameters
+    ----------
         filename <str> : PNG file path 
         regions <int in list> : coordinate on image file 
         block_size <int> : block size for cv2.adaptiveThreshold, must odd number
     
     user can get value
+    ----------
         line_size <tuple> : get line coordinate and width, height (x, y, w, h)
         line_scale <int> : get adapted minimum line scale value
         
@@ -27,19 +29,13 @@ class GetLineScale:
     
     def __init__(self, filename, regions, block_size = 15):
         self.filename = filename # file path
-        print("regions",regions)
+        # regions = [ x1, y1, x2, y2 ]
+        self.p0, self.p1 = [regions[0], regions[1]], [regions[2], regions[3]]
         
-        self.block_size = block_size # 주변 블록 사이즈
         self.image = cv2.imread(self.filename) # read png file
         self.image_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY) # image to gray
-        threshold = self.getThreshold(self.image_gray)
         
-        pdf_height = threshold.shape[0]
-        # x1, x2, y1, y2    > x1, y1, x2, y2 (21.03.09)
-        self.p0, self.p1 = [regions[0], regions[1]], [regions[2], regions[3]]
-        print(">>", self.p0,  self.p1)
-        
-        
+        self.block_size = block_size # 주변 블록 사이즈
         self.div_line_scale = 150 # line_scale value for erosion and dilation
         self.direction = "v" #  detected line direction
         self.pick_line = [] # detected line in regions
@@ -47,20 +43,12 @@ class GetLineScale:
         self.line_scale = 15 # adapted  mininum line scale (default = 15)
         
         # main 함수 자동 실행
-        self.main(threshold)
-    def show_plot( self, threshold, title):
-        threshold_ = cv2.resize(threshold, dsize=(500, 600))
-        cv2.imshow(title, threshold_)
-        cv2.waitKey(0)
+        self.main()
         
     # line size 계산
-    def main(self, threshold):
-        # threshold = self.getThreshold(self.image_gray)
-        '''
-        threshold = cv2.resize(threshold, dsize=(500, 600))
-        cv2.imshow("threshold org", threshold)
-        cv2.waitKey(0)
-        '''
+    def main(self):
+        threshold = self.getThreshold(self.image_gray)
+        
         # find direction, first horizontal 
         if self.find_direction(threshold, "h"): self.direction = "h"
         # second vertical
@@ -68,15 +56,11 @@ class GetLineScale:
         else: # no line detected
             self.line_size = [-1]
             self.line_scale = -1
-            print("NOLINE")
             return -1
         
         self.line_size = self.calc_line_size(threshold)
         self.line_scale = self.adapted_line_scale(threshold)
         return 0
-    
-    
-    
     
     # Threshold계산
     def getThreshold(self, image_gray):
@@ -106,22 +90,8 @@ class GetLineScale:
         region_mask = np.zeros(threshold.shape)
         x1, y1 = self.p0[0], self.p0[1]
         x2, y2 = self.p1[0], self.p1[1]
-        
-        
-        # threshold_ = cv2.resize(threshold, dsize=(500, 600))
-        # cv2.imshow("threshold org", threshold_)
-        # cv2.waitKey(0)
-        self.show_plot(threshold, "org")
-        print("y size ",y1, y2)
-        print("x size ",x1, x2)
-        print(threshold.shape)
         region_mask[y1 : y2, x1 : x2] = 1
         threshold = np.multiply(threshold, region_mask)
-        
-        # threshold_ = cv2.resize(threshold, dsize=(500, 600))
-        # cv2.imshow("threshold multi", threshold_)
-        # cv2.waitKey(0)
-        self.show_plot(threshold, "multi")
         
         if direction == "h":
             # horizontal calculation
@@ -132,32 +102,20 @@ class GetLineScale:
             size = threshold.shape[0] // self.div_line_scale
             el = cv2.getStructuringElement(cv2.MORPH_RECT, ( 1, size))
         
-        
-        
         threshold = cv2.dilate(threshold, el) # dilation
         threshold = cv2.erode(threshold, el) # erosion
-        
-        # threshold = cv2.resize(threshold, dsize=(500, 600))
-        # cv2.imshow("threshold ero 1", threshold)
-        # cv2.waitKey(0)
         
         threshold = cv2.erode(threshold, el) # erosion
         threshold = cv2.dilate(threshold, el) # dilation
         
-        # threshold_ = cv2.resize(threshold, dsize=(500, 600))
-        # cv2.imshow("threshold ero 2", threshold_)
-        # cv2.waitKey(0)
-        
-        cv2.imwrite(r"C:\\Users\\구민구\\Desktop\\GitKoo\\PDF_table_extract\\testtt.jpg", threshold)
-        print("save file")
         contours = self.getContours(threshold)
         for c in contours:
             c_poly = cv2.approxPolyDP(c, 3, True) #테두리 단순화
             x, y, w, h = cv2.boundingRect(c_poly) # 주어진 점들 (테두리) 감싸는 최소 사각형 면적
             self.pick_line = [x, y]
-        cv2.imwrite(r"C:\\Users\\구민구\\Desktop\\GitKoo\\PDF_table_extract\\testttt.jpg", threshold)
+            
         threshold = np.unique(threshold) # 중복 제거
-        print("len(threshold):",len(threshold))
+        
         # 중복 제거하고 모두 0이면 false / 0 이외 값이 있으면 (line 존재하는 것이므로) true
         if len(threshold)==1: return False
         else: return True
@@ -198,7 +156,6 @@ class GetLineScale:
         
     def adapted_line_scale(self, threshold):
         if self.line_size == [-1]: # 선택된 line이 없는 경우
-            print("2")
             return -1
         
         if self.direction == "h": # if horizontal
@@ -224,5 +181,5 @@ if __name__ ==  "__main__":
     print("line size >", getlinescale.line_size)
     print("adapted line scale >", getlinescale.line_scale)
     '''
-
-
+    
+    

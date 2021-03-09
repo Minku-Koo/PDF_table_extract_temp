@@ -10,12 +10,14 @@
 def addOutline(direction, mask, contours, line_size = 2):
     """
     Parameters
+    ----------
         direction <str> : "v" or "h" (vertical or horizontal), line direction
         mask <numpy nd.array> : Threshold (image binary array) 
         contours <tuple in list> : table area coordinates list like [(x, y, w, h), ... ]
         line_size <int> : outside border line size (default = 2)
     
     return 
+    ----------
         mask <numpy nd.array> : make virture outside border line on table 
     """
     for c in contours:

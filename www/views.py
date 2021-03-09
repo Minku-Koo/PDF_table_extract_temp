@@ -11,8 +11,7 @@ import json
 from utils.file_path import file_path_select
 from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_areas
 from check_lattice.Lattice_2 import Lattice2
-from check_lattice.check_line_scale_temp import GetLineScale
-
+from check_lattice.check_line_scale import GetLineScale
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,6 +22,7 @@ views = Blueprint("views", __name__)
 @views.route("/", methods=['GET'])
 def index():
     return redirect(url_for('views.example'))
+    
 
 @views.route("/example", methods=['GET'])
 def example():
@@ -86,6 +86,7 @@ def get_line_scale():
     if request.method == 'POST':
         imgname = f"test_pdf/sample/table_shape/page-{request.form['page']}.png"
         
+        
         jsons = request.form['jsons']
         jsons = json.loads(jsons)
         
@@ -95,8 +96,7 @@ def get_line_scale():
             regions.append( get_regions_img(v, imgname) )
 
         regions = [ int(float(i)) for i in regions[0].split(',') ]
-        print(regions)
-
+        
         getlinescale = GetLineScale(imgname, regions)
         print("line size >", getlinescale.line_size)
         print("adapted line scale >", getlinescale.line_scale)

@@ -30,13 +30,29 @@ def get_regions(v, page_file):
     return f'{x1},{y1},{x2},{y2}'
 
 
+# koo fix -> imread 대용 , 한글 경로 오류
+def hangulFilePathImageRead ( filePath ) : 
+    import numpy as np
+    stream = open( filePath.encode("utf-8") , "rb") 
+    bytes = bytearray(stream.read()) 
+    numpyArray = np.asarray(bytes, dtype=np.uint8) 
+    return cv2.imdecode(numpyArray , cv2.IMREAD_UNCHANGED)
+    
 def get_regions_img(v, img_file):
+    
     imgDims = cv2.imread(img_file).shape
+    # koo fix
+    # imgDims= hangulFilePathImageRead( img_file ).shape
     
     imageWidth = v['imageWidth']
     imageHeight = v['imageHeight']
-    scalingFactorX = imgDims[0] / imageWidth
-    scalingFactorY = imgDims[1] / imageHeight
+    # koo fix
+    # scalingFactorX = imgDims[0] / imageWidth
+    # scalingFactorY = imgDims[1] / imageHeight
+    
+    scalingFactorX = imgDims[1] / imageWidth
+    scalingFactorY = imgDims[0] / imageHeight
+    
     
     x1 = v['x'] * scalingFactorX
     y1 = abs(v['y'] ) * scalingFactorY
