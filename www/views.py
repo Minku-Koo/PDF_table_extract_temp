@@ -75,7 +75,7 @@ def extract_page():
             
         return jsonify({'html':html, 'bboxs':bboxs})
 
-def extract(regions, page_file, table_option, line_scale):
+def extract(regions, page_file, table_option, line_scale=30):
     # output_camelot = read_pdf(page_file, flavor="lattice", table_regions=regions)
     tables = None
     line_scale = int(line_scale)

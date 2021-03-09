@@ -95,6 +95,10 @@ class Lattice2(Lattice):
             )
 
             areas = scale_areas(self.table_areas)
+            
+            vertical_mask = addOutline("v", vertical_mask, areas) # maybe
+            horizontal_mask = addOutline("h", horizontal_mask, areas) # maybe
+
             table_bbox = find_joints(areas, vertical_mask, horizontal_mask)
 
         self.table_bbox_unscaled = copy.deepcopy(table_bbox)
