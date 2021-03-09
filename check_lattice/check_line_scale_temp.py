@@ -28,7 +28,7 @@ class GetLineScale:
     def __init__(self, filename, regions, block_size = 15):
         self.filename = filename # file path
         # x1, x2, y1, y2 
-        self.p0, self.p1 = [regions[0], regions[2]], [regions[1], regions[3]]
+        self.p0, self.p1 = [regions[0], regions[1]], [regions[2], regions[3]]
         
         self.image = cv2.imread(self.filename) # read png file
         self.image_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY) # image to gray

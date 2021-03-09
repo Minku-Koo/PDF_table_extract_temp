@@ -8,6 +8,7 @@
 
 # from camelot.io import read_pdf
 from camelot.utils import get_page_layout
+import cv2
 
 def get_file_dim(filepath):
     layout, dimensions = get_page_layout(filepath)
@@ -26,7 +27,21 @@ def get_regions(v, page_file):
     x2 = (v['x'] + v['width']) * scalingFactorX
     y2 = abs(v['y'] + v['height'] - imageHeight) * scalingFactorY
     
-    # return f'{min(x1, x2)},{min(y1, y2)},{max(x1, x2)},{max(y1, y2)}'
+    return f'{x1},{y1},{x2},{y2}'
+
+
+def get_regions_img(v, img_file):
+    imgDims = cv2.imread(img_file).shape
+    
+    imageWidth = v['imageWidth']
+    imageHeight = v['imageHeight']
+    scalingFactorX = imgDims[0] / imageWidth
+    scalingFactorY = imgDims[1] / imageHeight
+    
+    x1 = v['x'] * scalingFactorX
+    y1 = abs(v['y'] ) * scalingFactorY
+    x2 = (v['x'] + v['width']) * scalingFactorX
+    y2 = abs(v['y'] + v['height'] ) * scalingFactorY
     
     return f'{x1},{y1},{x2},{y2}'
     
