@@ -11,6 +11,11 @@ import json
 from utils.file_path import file_path_select
 from utils.location import get_file_dim, get_regions, bbox_to_areas
 from check_lattice.Lattice_2 import Lattice2
+from check_lattice.check_line_scale import GetLineScale
+
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
 views = Blueprint("views", __name__)
 
@@ -74,6 +79,28 @@ def extract_page():
             bboxs = 0
             
         return jsonify({'html':html, 'bboxs':bboxs})
+
+
+@views.route("/getLineScale", methods=['POST'])
+def get_line_scale():
+    if request.method == 'POST':
+        imgname = f"test_pdf/sample/table_shape/page-{request.form['page']}.png"
+        pdfname = f"test_pdf/sample/table_shape/page-{request.form['page']}.pdf"
+        
+        jsons = request.form['jsons']
+        jsons = json.loads(jsons)
+        
+        regions = []
+        for k, v in jsons.items():
+            v = json.loads(v)
+            regions.append( get_regions(v, pdfname) )
+        
+        regions = [ int(float(i)) for i in regions[0].split(',') ]
+        getlinescale = GetLineScale(imgname, regions)
+        print("line size >", getlinescale.line_size)
+        print("adapted line scale >", getlinescale.line_scale)
+            
+        return jsonify({'line_scale':getlinescale.line_scale})
 
 def extract(regions, page_file, table_option, line_scale=30):
     # output_camelot = read_pdf(page_file, flavor="lattice", table_regions=regions)

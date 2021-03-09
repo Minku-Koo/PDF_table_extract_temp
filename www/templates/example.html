@@ -32,6 +32,42 @@
                     location.href = '/example?page='+String(page);
 				});
             
+                $('#get_line_size').click(function () {
+					var selectedAreas = $('img#example').selectAreas('areas');
+                    
+                    if (selectedAreas.length > 0) {
+                        const imageWidth = $('#example').width();
+                        const imageHeight = $('#example').height();
+                    
+                        var table_option = $("input[name='optradio']:checked").val();
+                        var jsons = {};
+                        
+                        for(i=0 ; i<selectedAreas.length ; i++){
+                            selectedAreas[i]['imageWidth'] = imageWidth;
+                            selectedAreas[i]['imageHeight'] = imageHeight;
+                            jsons[i] = JSON.stringify(selectedAreas[i]);
+                        }
+                        jsons = JSON.stringify(jsons);
+
+                        $.ajax({
+                            url: '/getLineScale',
+                            data: {"jsons":jsons, "page":"{{page}}"},
+                            dataType:'json',
+                            type: 'POST',
+                            success: function (data) {
+                                $("#line_scale").val(data.line_scale);
+                            },
+                            error: function (error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                    else{
+                        alert("먼저 영역을 지정해주세요.");
+                    }
+				});
+                
+
                 $('#extract').click(function () {
 					var selectedAreas = $('img#example').selectAreas('areas');
                     
@@ -159,7 +195,7 @@
 
 			// Log the quantity of selections
 			function debugQtyAreas (event, id, areas) {
-				<!-- console.log(areas.length + " areas", arguments); -->
+				// console.log(areas.length + " areas", arguments);
 			};
 
 			// Display areas coordinates in a div
@@ -183,6 +219,10 @@
                         <h1>PDF {{page}}p</h1>
 
                         <form style="float:right;">
+                            <label>
+                                <input style="width: 110px" type='button' id="get_line_size" value="get Line Size">
+                            </label>
+                            &nbsp;&nbsp;
                             <label>
                                 line_scale&nbsp;<input style="width: 40px" type='text' id="line_scale" value="30">
                             </label>
