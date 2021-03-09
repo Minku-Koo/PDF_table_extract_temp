@@ -30,7 +30,7 @@ def get_regions(v, page_file):
     return f'{x1},{y1},{x2},{y2}'
 
 
-# koo fix -> imread 대용 , 한글 경로 오류
+# koo fix -> imread 대신 사용, 한글 경로 오류 시
 def hangulFilePathImageRead ( filePath ) : 
     import numpy as np
     stream = open( filePath.encode("utf-8") , "rb") 
