@@ -3,8 +3,11 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-08
+# Last modified on 2021-03-09
 #
+
+# from camelot.io import read_pdf
+from camelot.utils import get_page_layout
 
 def get_file_dim(filepath):
     layout, dimensions = get_page_layout(filepath)

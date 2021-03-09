@@ -3,13 +3,14 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-08
+# Last modified on 2021-03-09
 #
 
 from flask import Flask, request, render_template, jsonify, Blueprint, redirect, url_for
 import json
 from utils.file_path import file_path_select
 from utils.location import get_file_dim, get_regions, bbox_to_areas
+from check_lattice.Lattice_2 import Lattice2
 
 views = Blueprint("views", __name__)
 
@@ -80,10 +81,10 @@ def extract(regions, page_file, table_option, line_scale):
     line_scale = int(line_scale)
     
     if table_option == "areas":
-        parser = Lattice(table_areas=regions, line_scale=line_scale)
+        parser = Lattice2(table_areas=regions, line_scale=line_scale)
         
     else:
-        parser = Lattice(table_regions=regions, line_scale=line_scale)
+        parser = Lattice2(table_regions=regions, line_scale=line_scale)
     tables = parser.extract_tables(page_file)
     
     return tables
