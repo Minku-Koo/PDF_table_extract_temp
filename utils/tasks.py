@@ -27,84 +27,74 @@ from camelot.utils import get_page_layout, get_text_objects, get_rotation
 
 # from .utils.file import mkdirs
 
-class TaskProgress():
-    progress = 0
+def split(originalFilePath, PDFS_FOLDER, split_progress):
+    try:
+        extract_pages, total_pages = get_pages(originalFilePath, 'all')
 
-    def __init__(self):
-        pass
+        (
+            filenames,
+            imagenames,
+            imagepaths,
+            filedims,
+            imagedims,
+            detected_areas,
+        ) = ({} for i in range(6))
 
-    def setProgress(self, progress):
-        self.progress = progress
+        for page in extract_pages:
+            # self.setProgress( total_pages / page * 100 )
+            progress = int( page / total_pages * 100 )
+            split_progress['progress'] = progress
 
-    def getProgress(self):
-        return self.progress
+            # extract into single-page PDF
+            save_page(originalFilePath, page)
+            
+            filename = f"page-{page}.pdf"
+            filepath = os.path.join(PDFS_FOLDER, filename)
 
-    def split(self, originalFilePath, PDFS_FOLDER):
-        try:
-            extract_pages, total_pages = get_pages(originalFilePath, 'all')
+            imagename = "".join( [filename.replace(".pdf", ""), ".png"] )
+            imagepath = os.path.join(PDFS_FOLDER, imagename)
 
-            (
-                filenames,
-                imagenames,
-                imagepaths,
-                filedims,
-                imagedims,
-                detected_areas,
-            ) = ({} for i in range(6))
+            # convert single-page PDF to PNG
+            gs_call = "-q -sDEVICE=png16m -o {} -r300 {}".format(imagepath, filepath)
+            gs_call = gs_call.encode().split()
+            null = open(os.devnull, "wb")
+            with Ghostscript(*gs_call, stdout=null) as gs:
+                pass
+            null.close()
 
-            for page in extract_pages:
-                # self.setProgress( total_pages / page * 100 )
-                session['progress'] = total_pages / page * 100
+            # filenames[page] = filename
+            # filepaths[page] = filepath
+            # imagenames[page] = imagename
+            # imagepaths[page] = imagepath
 
-                # extract into single-page PDF
-                save_page(originalFilePath, page)
-                
-                filename = f"page-{page}.pdf"
-                filepath = os.path.join(PDFS_FOLDER, filename)
+            # filedims[page] = get_file_dim(filepath)
+            # imagedims[page] = get_image_dim(imagepath)
 
-                imagename = "".join([filename.replace(".pdf", ""), ".png"])
-                imagepath = os.path.join(PDFS_FOLDER, imagename)
+            # lattice_areas, stream_areas = (None for i in range(2))
+            # lattice
+            # parser = Lattice()
+            # tables = parser.extract_tables(filepath)
+            # if len(tables):
+            #     lattice_areas = []
+            #     for table in tables:
+            #         x1, y1, x2, y2 = table._bbox
+            #         lattice_areas.append((x1, y2, x2, y1))
 
-                # convert single-page PDF to PNG
-                gs_call = "-q -sDEVICE=png16m -o {} -r300 {}".format(imagepath, filepath)
-                gs_call = gs_call.encode().split()
-                null = open(os.devnull, "wb")
-                with Ghostscript(*gs_call, stdout=null) as gs:
-                    pass
-                null.close()
+            # detected_areas[page] = {"lattice": lattice_areas, "stream": stream_areas}
 
-                # filenames[page] = filename
-                # filepaths[page] = filepath
-                # imagenames[page] = imagename
-                # imagepaths[page] = imagepath
-
-                # filedims[page] = get_file_dim(filepath)
-                # imagedims[page] = get_image_dim(imagepath)
-
-                # lattice_areas, stream_areas = (None for i in range(2))
-                # lattice
-                # parser = Lattice()
-                # tables = parser.extract_tables(filepath)
-                # if len(tables):
-                #     lattice_areas = []
-                #     for table in tables:
-                #         x1, y1, x2, y2 = table._bbox
-                #         lattice_areas.append((x1, y2, x2, y1))
-
-                # detected_areas[page] = {"lattice": lattice_areas, "stream": stream_areas}
-
-            # file.extract_pages = json.dumps(extract_pages)
-            # file.total_pages = total_pages
-            # file.has_image = True
-            # file.filenames = json.dumps(filenames)
-            # file.filepaths = json.dumps(filepaths)
-            # file.imagenames = json.dumps(imagenames)
-            # file.imagepaths = json.dumps(imagepaths)
-            # file.filedims = json.dumps(filedims)
-            # file.imagedims = json.dumps(imagedims)
-            # file.detected_areas = json.dumps(detected_areas)
-        except Exception as e:
-            logging.exception(e)
+        # file.extract_pages = json.dumps(extract_pages)
+        # file.total_pages = total_pages
+        # file.has_image = True
+        # file.filenames = json.dumps(filenames)
+        # file.filepaths = json.dumps(filepaths)
+        # file.imagenames = json.dumps(imagenames)
+        # file.imagepaths = json.dumps(imagepaths)
+        # file.filedims = json.dumps(filedims)
+        # file.imagedims = json.dumps(imagedims)
+        # file.detected_areas = json.dumps(detected_areas)
+        return False
+    except Exception as e:
+        logging.exception(e)
 
 
 

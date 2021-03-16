@@ -3,7 +3,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-16
+# Last modified on 2021-03-17
 #
 
 from flask import (
@@ -21,8 +21,7 @@ from werkzeug.utils import secure_filename
 
 from utils.file_path import file_path_select
 from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_areas
-# from utils.tasks import split as pdf_split
-from utils.tasks import TaskProgress
+from utils.tasks import split as pdf_split
 
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
@@ -35,13 +34,14 @@ import numpy as np
 
 
 views = Blueprint("views", __name__)
+split_progress = {} # split 작업 진행도
 
 
 # 기본 인덱스 페이지, 이곳에서 pdf파일을 업로드할 수 있음
 @views.route("/", methods=['GET'])
 def index():
     return render_template('index.html')
-    return redirect(url_for('views.example')) # 예시 페이지로 리다이렉트시킴 (현재 사용 안함)
+    # return redirect(url_for('views.example')) # 예시 페이지로 리다이렉트시킴 (현재 사용 안함)
     
 
 # 각종 테스트 페이지. 현재 사용안함
@@ -59,10 +59,11 @@ def example():
     
     return render_template('example.html', page=page)
 
-  
+
 # jquery ajax로 파일 업로드 요청시 오게되는 라우트
-@views.route("/uploadPDF", methods=['POST'])
+@views.route("/uploadPDF", methods = ['POST'])
 def uploadPDF():
+    global split_progress
     if 'file' not in request.files:
         resp = jsonify({'message' : 'No file part in the request'})
         resp.status_code = 400
@@ -102,13 +103,9 @@ def uploadPDF():
 
     # main 
     if success:
-        session['progress'] = 0
-        TP = TaskProgress()
         # extract() # 이부분에 작업 넣으면 좋을 듯
-
         # original pdf -> split 1, 2 .... n page pdf
-        # pdf_split(filepath, file_page_path)
-        TP.split(filepath, file_page_path)
+        pdf_split(filepath, file_page_path, split_progress)
 
         resp = jsonify({'message' : 'Files successfully uploaded'})
         resp.status_code = 201
@@ -120,13 +117,29 @@ def uploadPDF():
         return resp
 
 
-@views.route('/getProgress', methods=['POST'])
+@views.route('/getProgress', methods = ['POST'])
 def getProgress():
-    result = session['progress']
-    return jsonify('result', result)
+    global split_progress
+
+    result = split_progress.get('progress')
+    return jsonify(result)
 
 # 추출할 pdf파일이 정해졌을때 추출을 진행하는 라우트 (Get 요청으로 pdf파일 명시)
-@views.route("/extract", methods=['POST'])
+@views.route("/extract_page", methods=['GET'])
+def extract_page():
+    fileName = request.args.get("fileName")
+    page = request.args.get("page")
+
+    if page is None:
+        page = 1
+
+    print(fileName, page)
+
+    if fileName is not None and page is not None:
+        return render_template('extract.html', fileName=fileName, page=page)
+
+    else:
+        return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
 
 
 # 타겟 pdf 페이지 1장의 테이블을 추출하는 라우트

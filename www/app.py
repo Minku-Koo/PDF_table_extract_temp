@@ -13,7 +13,7 @@ import os
 def create_app():
     app = Flask(__name__)
     app.register_blueprint(views)
-    app.secret_key = 'cju_dblab_sharp_16'
+    app.secret_key = 'secret key@#(*@&@(*&#(*@#sfds@'
 
     UPLOAD_FOLDER = os.getcwd() + r'\www\static\job_pdf'
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER

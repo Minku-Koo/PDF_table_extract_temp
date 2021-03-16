@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 		<!--[if lte IE 8]><link href="../resources/jquery.selectareas.ie8.css" media="screen" rel="stylesheet" type="text/css" /> <![endif]-->
-       <script type="text/javascript" src = "{{url_for('static',filename='js/jquery-1.11.3.min.js')}}"></script>
+       <script type="text/javascript" src = "{{url_for('static', filename='js/jquery-1.11.3.min.js')}}"></script>
         
 	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
         
@@ -34,29 +34,30 @@
                     var count = 4;
                     var per = 16;
                     // var loading = setInterval(animate, 50);
-                    var loading = setInterval(getProgress, 100);
+                    var loading = setInterval(getProgress, 200);
 
                     function getProgress(){
                         $.ajax({
                             type: 'POST',
                             url: '/getProgress',
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             success: function (data) {
-                                console.log(data);
+                                animate(data);
                             }
                         });
                     }
 
-                    function animate(){
+                    function animate(per){
                         if(count == 100 && per == 400){
                             percent.classList.add("text-blink");
                             text.style.display = "block";
-                            // clearInterval(loading);
+                            clearInterval(loading);
                         }
                         else{
-                            per = per + 4;
-                            count = count + 1;
-                            progress.style.width = per + 'px';
-                            percent.textContent = count + '%';
+                            progress.style.width = per*4 + 'px';
+                            percent.textContent = per + '%';
                         }
                     }
                 }
@@ -139,11 +140,7 @@
                         }
 
                         if (files[0].type==='application/pdf') {
-                            $(".zone").css({
-                                // "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
-                                "outline": "none",
-                                // "background-size": "100% 100%"
-                            });
+                            $(".zone").css({"outline": "none"});
 
                             var tag = '';
                             var f = files[0];
@@ -160,7 +157,6 @@
                                     "Extract Tables"+
                                 "</div>";
 
-                            // $(".zone").append(tag);
                             $("#non-upload-box").css("display", "none");
                             $("#dropZ").append(tag);
 
@@ -170,16 +166,18 @@
 
                                 progress();
 
-
                                 $.ajax({
                                     type: 'POST',
                                     url: '/uploadPDF',
                                     processData: false,
                                     contentType: false,
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     data: formData,
                                     success: function (data) {
                                         if(data.message == 'Files successfully uploaded'){
-
+                                            location.href = '{{url_for("views.extract_page")}}'+'?fileName='+fileName.split('.')[0];
                                         }
                                     },
                                     error: function (error) {
@@ -203,7 +201,8 @@
         <div class="background-grey" style="display:none"></div>
         <!-- <div class="loading"> -->
         <div class="loading" style="display:none">
-            <div class="percent">100%</div>
+            <center><span style='font-size: 50px; color: white;'>Processing...</span></center>
+            <div class="percent">0%</div>
             <label class="text">Completed!</label>
             <div class="progress-bar2">
                 <div class="progress2"></div>

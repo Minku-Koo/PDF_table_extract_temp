@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+        <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+        <title>PDF Table Select Areas</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/extract.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='resources/jquery.selectareas.css')}}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<!--[if lte IE 8]><link href="../resources/jquery.selectareas.ie8.css" media="screen" rel="stylesheet" type="text/css" /> <![endif]-->
+       <script type="text/javascript" src = "{{url_for('static',filename='js/jquery-1.11.3.min.js')}}"></script>
+       <script type="text/javascript" src = "{{url_for('static',filename='js/jquery.selectareas.js')}}"></script>
+        
+	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
+        
+        
+		<script type="text/javascript">
+			$(document).ready(function () {
+                $('.arrow').click(function () {
+					direction = $(this).text();
+                    var page = 166;
+                    
+                    if (direction == "◀"){
+                        page = Number("{{page}}")-1;
+                        if(page < 1){
+                            page = 1;
+                        }
+                    }
+                    else{
+                        page = Number("{{page}}")+1;
+                    }
+                    location.href = '/extract_page?fileName='+"{{fileName}}"+'&&page='+String(page);
+				});
+            
+                $('#get_line_size').click(function () {
+					var selectedAreas = $('img#example').selectAreas('areas');
+                    
+                    if (selectedAreas.length > 0) {
+                        const imageWidth = $('#example').width();
+                        const imageHeight = $('#example').height();
+                    
+                        var table_option = $("input[name='optradio']:checked").val();
+                        var jsons = {};
+                        
+                        for(i=0 ; i<selectedAreas.length ; i++){
+                            selectedAreas[i]['imageWidth'] = imageWidth;
+                            selectedAreas[i]['imageHeight'] = imageHeight;
+                            jsons[i] = JSON.stringify(selectedAreas[i]);
+                        }
+                        jsons = JSON.stringify(jsons);
+
+                        $.ajax({
+                            url: '/getLineScale',
+                            data: {"jsons":jsons, "page":"{{page}}"},
+                            dataType:'json',
+                            type: 'POST',
+                            success: function (data) {
+                                $("#line_scale").val(data.line_scale);
+                            },
+                            error: function (error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                    else{
+                        alert("먼저 영역을 지정해주세요.");
+                    }
+				});
+                
+
+                $('#extract').click(function () {
+					var selectedAreas = $('img#example').selectAreas('areas');
+                    
+                    if (selectedAreas.length > 0) {
+                        const imageWidth = $('#example').width();
+                        const imageHeight = $('#example').height();
+                    
+                        var table_option = $("input[name='optradio']:checked").val();
+                        var jsons = {};
+                        
+                        for(i=0 ; i<selectedAreas.length ; i++){
+                            selectedAreas[i]['imageWidth'] = imageWidth;
+                            selectedAreas[i]['imageHeight'] = imageHeight;
+                            jsons[i] = JSON.stringify(selectedAreas[i]);
+                        }
+                        jsons = JSON.stringify(jsons);
+                        
+                         $.ajax({
+                            url: '/doExtract',
+                            data: {"jsons":jsons, "page":"{{page}}", "table_option":table_option, "line_scale":$("#line_scale").val()},
+                            dataType:'json',
+                            type: 'POST',
+                            success: function (data) {
+                                var html = data.html;
+                                var bboxs = data.bboxs;
+                                
+                                $('#table_printer').html(html);
+                                if(bboxs != 0){
+                                    bboxs = bboxs.split(";");
+                                    
+                                    $("#example").selectAreas('reset');
+                                    
+                                    arrs = [];
+                                    for(i=0 ; i<bboxs.length ; i++){
+                                        var arr = bboxs[i].split(',');
+                                        
+                                        arrs.push({
+                                            x: Number(arr[0]),
+                                            y: Number(arr[1]),
+                                            width: Number(arr[2]),
+                                            height: Number(arr[3]),
+                                        });
+                                    }
+                                    
+                                    $("#example").selectAreas('add', arrs);
+                                }
+                            },
+                            error: function (error) {
+                              console.error(error);
+                            }
+                         });
+                    }
+				});
+				$('img#example').selectAreas({
+					minSize: [10, 10],
+					onChanged: debugQtyAreas,
+					width: 500
+				});
+				$('#btnView').click(function () {
+					var selectedAreas = $('img#example').selectAreas('areas');
+					displayAreas(selectedAreas);
+				});
+				$('#btnViewRel').click(function () {
+					var areas = $('img#example').selectAreas('relativeAreas');
+					displayAreas(areas);
+				});
+				$('#btnReset').click(function () {
+					output("reset")
+					$('img#example').selectAreas('reset');
+				});
+				$('#btnDestroy').click(function () {
+					$('img#example').selectAreas('destroy');
+
+					output("destroyed")
+					$('.actionOn').attr("disabled", "disabled");
+					$('.actionOff').removeAttr("disabled")
+				});
+				$('#btnCreate').attr("disabled", "disabled").click(function () {
+					$('img#example').selectAreas({
+						minSize: [10, 10],
+						onChanged : debugQtyAreas,
+						width: 500,
+					});
+
+					output("created")
+					$('.actionOff').attr("disabled", "disabled");
+					$('.actionOn').removeAttr("disabled")
+				});
+				$('#btnNew').click(function () {
+					var areaOptions = {
+						x: Math.floor((Math.random() * 200)),
+						y: Math.floor((Math.random() * 200)),
+						width: Math.floor((Math.random() * 100)) + 50,
+						height: Math.floor((Math.random() * 100)) + 20,
+					};
+					output("Add a new area: " + areaToString(areaOptions))
+					$('img#example').selectAreas('add', areaOptions);
+				});
+				$('#btnNews').click(function () {
+					var areaOption1 = {
+						x: Math.floor((Math.random() * 200)),
+						y: Math.floor((Math.random() * 200)),
+						width: Math.floor((Math.random() * 100)) + 50,
+						height: Math.floor((Math.random() * 100)) + 20,
+					}, areaOption2 = {
+						x: areaOption1.x + areaOption1.width + 10,
+						y: areaOption1.y + areaOption1.height - 20,
+						width: 50,
+						height: 20,
+					};
+					output("Add a new area: " + areaToString(areaOption1) + " and " + areaToString(areaOption2))
+					$('img#example').selectAreas('add', [areaOption1, areaOption2]);
+				});
+			});
+
+			var selectionExists;
+
+			function areaToString (area) {
+				return (typeof area.id === "undefined" ? "" : (area.id + ": ")) + area.x + ':' + area.y  + ' ' + area.width + 'x' + area.height + '<br />'
+			}
+
+			function output (text) {
+				$('#output').html(text);
+			}
+
+			// Log the quantity of selections
+			function debugQtyAreas (event, id, areas) {
+				// console.log(areas.length + " areas", arguments);
+			};
+
+			// Display areas coordinates in a div
+			function displayAreas (areas) {
+				var text = "";
+				$.each(areas, function (id, area) {
+					text += areaToString(area);
+				});
+				output(text);
+			};
+
+		</script>
+	</head>
+
+	<body>
+       <table>
+           <tr>
+                <td style="text-align: left;"><span class="arrow">◀</span></td>
+                <td>
+                    <div id="wrapper">
+                        <h1>PDF {{page}}p</h1>
+
+                        <form style="float:right;">
+                            <label>
+                                <input style="width: 110px" type='button' id="get_line_size" value="get Line Size">
+                            </label>
+                            &nbsp;&nbsp;
+                            <label>
+                                line_scale&nbsp;<input style="width: 40px" type='text' id="line_scale" value="30">
+                            </label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label class="radio-inline">
+                                <input type="radio" name="optradio" value="areas">table_areas
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="optradio" value="regions" checked>table_regions
+                            </label>
+                        </form>
+
+                        <div class="image-decorator">
+                            <img alt="Image principale" id="example" src = "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{page}}.png"/>
+                        </div>
+                    </div>
+                </td>
+                <td style="text-align: right;"><span class="arrow">▶</span></td>
+                
+                <td width="60px">
+                    <input type="button" id="extract" value="테이블 추출👉" style="font-size: 18px; cursor:pointer;"/>
+                </td>
+                
+                <td style="vertical-align: top">
+                    <h1>Table Result</h1>
+                    <div id='table_printer'></div>
+                </td>
+           </tr>
+       </table>
+	</body>
+</html>
