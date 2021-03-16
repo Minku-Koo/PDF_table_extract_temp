@@ -1,0 +1,225 @@
+@import url(https://fonts.googleapis.com/css?family=Exo+2:400,700,500,300);
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,900italic,900,700italic,700,500italic,500,400italic,300italic,300,100italic,100);
+
+body {
+  background: #ebeff2;
+  font-family: "Exo 2";
+}
+
+.zone {
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: radial-gradient(ellipse at center,#F52C05 0,#c9402f 100%);
+    width:60%;
+    height:50%;  
+    border:5px dashed white;
+    text-align:center;
+    color: white;
+    z-index: 20;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.05),inset 0 0 .25em 0 rgba(0,0,0,.25);
+}
+.zone #dropZ{
+    position: relative;
+    height: 100%;
+}
+.zone .btnCompression .active{
+    background: #F52C05;
+    color:white;
+}
+.zone i{
+    text-align: center;
+    font-size: 10em;  
+    color:#fff;
+    margin-top: 50px;
+}
+.zone .selectFile {
+    height: 50px;
+    margin: 20px auto;
+    position: relative;
+    width: 200px;          
+}
+.zone label, input {
+    cursor: pointer;
+    display: block;
+    height: 50px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    border-radius: 5px;          
+}
+.zone label {
+    background: #fff;
+    color:#F52C05;
+    display: inline-block;
+    font-size: 1.2em;
+    line-height: 50px;
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-weight: 400;   
+    box-shadow: 0 1px 1px gray;
+}
+
+.zone input[type=file] {
+    opacity: 0;
+}
+.zone .in {
+    color:white;
+    border-color:white;
+    background: radial-gradient(ellipse at center,#F52C05 0,#c9402f 100%);
+}
+.zone .in i {          
+    color:#fff;
+}
+.zone .in label {
+    background: #fff;
+    color:#F52C05;
+}
+.zone.hover {
+    color:gray;
+    border-color:white;
+    background:#fff;
+    border:5px dashed gray;
+}
+.zone.hover i {          
+    color:#F52C05;
+}
+.zone.hover label {
+    background: #fff;
+    color:#F52C05;
+}
+.zone.fade {
+    transition: all 0.3s ease-out;
+    opacity: 1;
+}
+
+header {
+    width: auto;
+    height: 60px;
+    background: #F52C05;
+}
+
+.fileBox{
+    position: absolute;
+    width: 40%;
+    height: 20%;
+    padding: 5px 10px;
+    
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    border-radius: 20px;
+    background: white;
+    font-weight: bold;
+    color: #F52C05;
+
+    box-shadow: 3px 3px #a8a8a8;
+}
+.fileBox span:not(.x_btn){
+    position: absolute;
+    text-align: left;
+    left: 50%;
+    top: 50%;
+    transform: translate(-40%, -50%);
+
+}
+.fileBox img{
+    float: left;
+    height: 100%;
+}
+.x_btn{
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.extract_btn{
+    position: absolute;
+    width: 50%;
+    height: 15%;
+    left: 50%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* text-align: center; */
+
+    background: #e8e8e8;
+    cursor: pointer;
+    color: #F52C05;
+    font-size: 20px;
+}
+
+.background-grey{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #151515;
+    opacity: 50%;
+    z-index: 99;
+}
+.loading{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    box-shadow: 10px 10px 10px 20grey;
+    border-radius: 30px;
+
+    font-family: 'Roboto';
+    z-index: 999;
+}
+.percent{
+  color: #D0D9D7;
+  font-size: 100px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 8px 8px 8px rgba(0, 0, 0, 0.8);
+}
+.progress-bar2{
+  width: 406px;
+  height: 36px;
+  background: #111;
+  border-radius: 13px;
+  padding: 3px;
+  box-sizing: border-box;
+}
+.progress2{
+  width: 10px;
+  height: 30px;
+  background: #3E99F6;
+  border-radius: 13px;
+}
+.text{
+  position: absolute;
+  left: 160px;
+  color: #fdb5ca;
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 36px;
+  display: none;
+}
+.text-blink{
+  animation: animate .7s ease-in-out .1s;
+}
+@keyframes animate {
+  0%{
+    opacity: 1;
+  }
+  50%{
+    opacity: 0.2;
+  }
+  100%{
+    opacity: 1;
+  }
+}

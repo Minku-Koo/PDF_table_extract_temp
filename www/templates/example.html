@@ -86,7 +86,7 @@
                         jsons = JSON.stringify(jsons);
                         
                          $.ajax({
-                            url: '/extract',
+                            url: '/doExtract',
                             data: {"jsons":jsons, "page":"{{page}}", "table_option":table_option, "line_scale":$("#line_scale").val()},
                             dataType:'json',
                             type: 'POST',

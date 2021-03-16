@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="kr" xml:lang="kr" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+        <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+        <title>PDF Table Extractor</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/index.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='resources/jquery.selectareas.css')}}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<!--[if lte IE 8]><link href="../resources/jquery.selectareas.ie8.css" media="screen" rel="stylesheet" type="text/css" /> <![endif]-->
+       <script type="text/javascript" src = "{{url_for('static',filename='js/jquery-1.11.3.min.js')}}"></script>
+        
+	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
+        
+        
+		<script type="text/javascript">
+            function close_btn(target){
+                // alert(target);
+                $(".fileBox").remove();
+                $("#non-upload-box").css("display", "block");
+                $("#file").val(null);
+                $(".extract_btn").remove();
+            }
+
+			$(document).ready(function () {
+        
+                function progress(){
+                    $(".background-grey").css("display", "block");
+                    $(".loading").css("display", "block");
+
+                    var percent = document.querySelector('.percent');
+                    var progress = document.querySelector('.progress2');
+                    var text = document.querySelector('.text');
+                    var count = 4;
+                    var per = 16;
+                    // var loading = setInterval(animate, 50);
+                    var loading = setInterval(getProgress, 100);
+
+                    function getProgress(){
+                        $.ajax({
+                            type: 'POST',
+                            url: '/getProgress',
+                            success: function (data) {
+                                console.log(data);
+                            }
+                        });
+                    }
+
+                    function animate(){
+                        if(count == 100 && per == 400){
+                            percent.classList.add("text-blink");
+                            text.style.display = "block";
+                            // clearInterval(loading);
+                        }
+                        else{
+                            per = per + 4;
+                            count = count + 1;
+                            progress.style.width = per + 'px';
+                            percent.textContent = count + '%';
+                        }
+                    }
+                }
+
+                $('.zone').on("dragover", dragOver).on("drop", uploadFiles);
+                
+                $("#file").change(function(e){
+                    uploadFiles(e);
+                });
+
+                function dragOver(e) {
+                    if($(e.target).get(0) != $('#file').get(0)){
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+
+                    var dropZone = $('.zone'),
+                    // var dropZone = $('#dropZ'),
+                        timeout = window.dropZoneTimeout;
+                    if (!timeout) {
+                        dropZone.addClass('in');
+                    }
+                    else {
+                        clearTimeout(timeout);
+                    }
+                    var found = false,
+                        node = e.target;
+
+                    do {
+                        if (node === dropZone[0]) {
+                            found = true;
+                            break;
+                        }
+                        node = node.parentNode;
+                    } while (node != null);
+
+                    if (found) {
+                        dropZone.addClass('hover');
+                    }
+                    else {
+                        dropZone.removeClass('hover');
+                    }
+                    window.dropZoneTimeout = setTimeout(function () {
+                        window.dropZoneTimeout = null;
+                        dropZone.removeClass('in hover');
+                    }, 100);
+                }
+
+                function uploadFiles(e) {
+                    if($(e.target).get(0) != $('#file').get(0)){
+                        e.stopPropagation();
+                        e.preventDefault();
+                        dragOver(e);
+                    }
+                    
+                    e.dataTransfer = e.originalEvent.dataTransfer;
+                    var files = e.target.files || e.dataTransfer.files;
+
+                    selectFile(files);
+                }
+                
+                function selectFile(fileObject){
+                    var files = null;
+
+                    if(fileObject == undefined){
+
+                    }
+
+                    if(fileObject != null){
+                        files = fileObject;
+                    }
+                    else{
+                        files = $("#file").files;
+                    }
+
+                    if(files != null && files[0] != undefined){
+                        if (files.length > 1){
+                            alert('파일은 1개만 업로드할 수 있습니다.');
+                            return;
+                        }
+
+                        if (files[0].type==='application/pdf') {
+                            $(".zone").css({
+                                // "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+                                "outline": "none",
+                                // "background-size": "100% 100%"
+                            });
+
+                            var tag = '';
+                            var f = files[0];
+                            var fileName = f.name;
+                            var fileSize = f.size / 1024 / 1024;
+                            fileSize = fileSize < 1 ? fileSize.toFixed(3) : fileSize.toFixed(1);
+                            tag += 
+                                "<div class='fileBox'>" +
+                                    "<image src=\'{{url_for('static',filename='css/icon/pdf_icon.png')}}\'>" +
+                                    "<span class='x_btn' onclick='close_btn(this);'>x</span>" +
+                                    "<span >"+fileName+"<br>"+fileSize+" MB</span>" +
+                                "</div>"+
+                                "<div class='extract_btn'>"+
+                                    "Extract Tables"+
+                                "</div>";
+
+                            // $(".zone").append(tag);
+                            $("#non-upload-box").css("display", "none");
+                            $("#dropZ").append(tag);
+
+                            $('.extract_btn').click(function(){
+                                var formData = new FormData();
+                                formData.append("file", f);
+
+                                progress();
+
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/uploadPDF',
+                                    processData: false,
+                                    contentType: false,
+                                    data: formData,
+                                    success: function (data) {
+                                        if(data.message == 'Files successfully uploaded'){
+
+                                        }
+                                    },
+                                    error: function (error) {
+                                        console.error(error);
+                                    }
+                                });
+                            });
+                        }
+                        else{
+                            alert('PDF파일만 업로드할 수 있습니다.');
+                            $("#file").val(null);
+                            return;
+                        }
+                    }
+                }
+			});
+		</script>
+	</head>
+
+	<body>
+        <div class="background-grey" style="display:none"></div>
+        <!-- <div class="loading"> -->
+        <div class="loading" style="display:none">
+            <div class="percent">100%</div>
+            <label class="text">Completed!</label>
+            <div class="progress-bar2">
+                <div class="progress2"></div>
+            </div>
+        </div>
+
+        <header></header>
+
+        <center>
+            <h1>PDF Table Extractor</h1>
+            <hr style="height: 3px; background: #EB6A5A; width: 60%">
+        </center>
+
+        <div class="zone">
+            <div id="dropZ">
+                <div id="non-upload-box">
+                    <i class="fa fa-cloud-upload"></i>
+                    <div>Drag and drop your file here</div>                    
+                    <br>
+                    <span>OR</span>
+
+                    <div class="selectFile">       
+                        <label for="file">Select file</label>                   
+                        <input type="file" name="files[]" id="file">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <embed src="{{url_for('static',filename='job_pdf/table_shape.pdf')}}" width="800px" height="2100px" /> -->
+	</body>
+</html>
