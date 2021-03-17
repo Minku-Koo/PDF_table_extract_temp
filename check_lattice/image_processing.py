@@ -211,7 +211,6 @@ def find_joints(contours, vertical, horizontal):
     tables = {}
     for c in contours:
         x, y, w, h = c
-        # print("c",c)
         roi = joints[y : y + h, x : x + w]
         
         try:
