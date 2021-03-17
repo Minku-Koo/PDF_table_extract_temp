@@ -211,15 +211,8 @@ def find_joints(contours, vertical, horizontal):
     tables = {}
     for c in contours:
         x, y, w, h = c
-        # print("c",c)
         roi = joints[y : y + h, x : x + w]
         
-        import matplotlib.pyplot as plt
-        plt.title('roi')
-        rois = joints[y-5 : y + h+5, x-5 : x + w+5]
-        plt.imshow(rois)
-        
-        plt.show()
         try:
             __, jc, __ = cv2.findContours(
                 roi.astype(np.uint8), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
