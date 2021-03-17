@@ -155,17 +155,10 @@ def extract_page():
 @views.route("/doExtract", methods=['POST'])
 def doExtract_page():
     if request.method == 'POST':
-        # pdf_path = file_path_select() #PDF 파일 지정
-        # file_name = pdf_path.split('/')[-1].split('.')[0]
-        # page = "166"
-        # page_file = os.path.join(
-                # os.path.dirname(pdf_path),
-                # os.path.basename(pdf_path).split(".")[0],
-                # "page-"+str(page)+".pdf"
-                # ).replace("\\", "/")
-        # print(page_file)
-        
-        page_file = f"test_pdf/sample/table_shape/page-{request.form['page']}.pdf"
+        file_name = request.form['fileName']
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
+
+        page_file = f"{filepath}\\page-{request.form['page']}.pdf"
     
         table_option = request.form['table_option']
         line_scale = request.form['line_scale']
@@ -176,7 +169,6 @@ def doExtract_page():
         regions = []
         for k, v in jsons.items():
             v = json.loads(v)
-            regions.append( get_regions(v, page_file) )
         
         result = extract(regions, page_file, table_option, line_scale)
         
@@ -204,7 +196,9 @@ def doExtract_page():
 @views.route("/getLineScale", methods=['POST'])
 def get_line_scale():
     if request.method == 'POST':
-        imgname = f"test_pdf/sample/table_shape/page-{request.form['page']}.png"
+        file_name = request.form['fileName']
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
+        imgname = f"{filepath}\\page-{request.form['page']}.png"
         
         
         jsons = request.form['jsons']

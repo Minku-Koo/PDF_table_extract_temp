@@ -44,12 +44,12 @@ header li{
 }
 .thumb_img{
 	width: 80%;
-	border: 1px solid black;
 }
 
 
 #article_table{
 	position: absolute;
+	/* width: 75%; */
 	height: 92%;
 	left: 15%;
 	top: 8%;
@@ -57,7 +57,7 @@ header li{
 
 input :not([type=radio]){
 	display: block;
-	width: 120px;
+	/* width: 120px; */
 	margin: 10px;
 }
 
@@ -84,16 +84,13 @@ table {
 	margin: auto;
 }
 
-h1 {
-	font-size : 24px;
-	font-weight : normal;
-	margin : 0 0 10px 0;
-	text-shadow : 0 1px 0 #ffffff;
-}
 
 div#wrapper {
-	margin : 25px auto 25px auto;
-	width : 520px;
+	position: relative;
+	margin: 0 auto;
+	height: 90%;
+	max-width: 51vh;
+	font-size: 18px;
 }
 
 div.image-decorator {
@@ -108,12 +105,12 @@ div.image-decorator {
 	display : inline-block;
 	padding : 5px 5px 5px 5px;
 	position: relative;
-	margin-bottom: 10px;
+	/* margin-bottom: 10px; */
 }
 
 .arrow{
     width: 100px;
-    font-size: 50px;
+    font-size: 30px;
     cursor: pointer;
 }
 
