@@ -4,7 +4,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-16
-# Last modified on 2021-03-16
+# Last modified on 2021-03-17
 #
 
 import os
@@ -52,15 +52,29 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             filepath = os.path.join(PDFS_FOLDER, filename)
 
             imagename = "".join( [filename.replace(".pdf", ""), ".png"] )
+            thumb_imagename = "".join( [filename.replace(".pdf", ""), "-thumb.png"] )
             imagepath = os.path.join(PDFS_FOLDER, imagename)
+            thumb_imagepath = os.path.join(PDFS_FOLDER, thumb_imagename)
 
             # convert single-page PDF to PNG
+
             gs_call = "-q -sDEVICE=png16m -o {} -r300 {}".format(imagepath, filepath)
             gs_call = gs_call.encode().split()
             null = open(os.devnull, "wb")
             with Ghostscript(*gs_call, stdout=null) as gs:
                 pass
             null.close()
+
+            # creating thumbnail image
+            gs_call = "-q -sDEVICE=png16m -o {} -r30 {}".format(thumb_imagepath, filepath)
+            gs_call = gs_call.encode().split()
+            null = open(os.devnull, "wb")
+            with Ghostscript(*gs_call, stdout=null) as gs:
+                pass
+            null.close()
+            #################
+
+
 
             # filenames[page] = filename
             # filepaths[page] = filepath

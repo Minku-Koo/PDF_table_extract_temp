@@ -26,6 +26,8 @@ from utils.tasks import split as pdf_split
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
 
+from PyPDF2 import PdfFileReader
+
 import cv2
 import os
 import json
@@ -133,10 +135,17 @@ def extract_page():
     if page is None:
         page = 1
 
-    print(fileName, page)
-
     if fileName is not None and page is not None:
-        return render_template('extract.html', fileName=fileName, page=page)
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], fileName)
+        file_page_path = os.path.splitext(filepath)[0]
+        filepath = os.path.join(file_page_path, fileName+'.pdf')
+        
+        inputstream = open(filepath, "rb")
+        infile = PdfFileReader(inputstream, strict=False)
+        total_page = infile.getNumPages()
+        inputstream.close()
+
+        return render_template('extract.html', fileName=fileName, page=page, totalPage=total_page)
 
     else:
         return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')

@@ -4,6 +4,7 @@
 body {
   background: #ebeff2;
   font-family: "Exo 2";
+  height: 100vh;
 }
 
 .zone {
@@ -99,7 +100,7 @@ body {
 
 header {
     width: auto;
-    height: 60px;
+    height: 8%;
     background: #F52C05;
 }
 

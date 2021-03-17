@@ -32,7 +32,7 @@
 				});
             
                 $('#get_line_size').click(function () {
-					var selectedAreas = $('img#example').selectAreas('areas');
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
                     
                     if (selectedAreas.length > 0) {
                         const imageWidth = $('#example').width();
@@ -68,7 +68,7 @@
                 
 
                 $('#extract').click(function () {
-					var selectedAreas = $('img#example').selectAreas('areas');
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
                     
                     if (selectedAreas.length > 0) {
                         const imageWidth = $('#example').width();
@@ -120,32 +120,31 @@
                          });
                     }
 				});
-				$('img#example').selectAreas({
+				$('img#pageImg').selectAreas({
 					minSize: [10, 10],
-					onChanged: debugQtyAreas,
-					width: 500
+					onChanged: debugQtyAreas
 				});
 				$('#btnView').click(function () {
-					var selectedAreas = $('img#example').selectAreas('areas');
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
 					displayAreas(selectedAreas);
 				});
 				$('#btnViewRel').click(function () {
-					var areas = $('img#example').selectAreas('relativeAreas');
+					var areas = $('img#pageImg').selectAreas('relativeAreas');
 					displayAreas(areas);
 				});
 				$('#btnReset').click(function () {
 					output("reset")
-					$('img#example').selectAreas('reset');
+					$('img#pageImg').selectAreas('reset');
 				});
 				$('#btnDestroy').click(function () {
-					$('img#example').selectAreas('destroy');
+					$('img#pageImg').selectAreas('destroy');
 
 					output("destroyed")
 					$('.actionOn').attr("disabled", "disabled");
 					$('.actionOff').removeAttr("disabled")
 				});
 				$('#btnCreate').attr("disabled", "disabled").click(function () {
-					$('img#example').selectAreas({
+					$('img#pageImg').selectAreas({
 						minSize: [10, 10],
 						onChanged : debugQtyAreas,
 						width: 500,
@@ -163,7 +162,7 @@
 						height: Math.floor((Math.random() * 100)) + 20,
 					};
 					output("Add a new area: " + areaToString(areaOptions))
-					$('img#example').selectAreas('add', areaOptions);
+					$('img#pageImg').selectAreas('add', areaOptions);
 				});
 				$('#btnNews').click(function () {
 					var areaOption1 = {
@@ -178,7 +177,7 @@
 						height: 20,
 					};
 					output("Add a new area: " + areaToString(areaOption1) + " and " + areaToString(areaOption2))
-					$('img#example').selectAreas('add', [areaOption1, areaOption2]);
+					$('img#pageImg').selectAreas('add', [areaOption1, areaOption2]);
 				});
 			});
 
@@ -210,12 +209,35 @@
 	</head>
 
 	<body>
-       <table>
+        <header>
+            <ul>
+                <li onclick='location.href="/"'>HOME</li>
+                <li>BLAH BLAH</li>
+                <li>BLAH BLAH</li>
+            </ul>
+        </header>
+        <div id='page_list_box'>
+            {% for idx in range(1, totalPage+1) %}
+                <div class='thumb_page'>
+                    <center>
+                        <img
+                            class='thumb_img'
+                            src="{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{idx}}-thumb.png"
+                            onclick="location.href = '/extract_page?fileName='+'{{fileName}}'+'&&page='+'{{idx}}';"
+                            style="cursor: pointer">
+                        <br>
+                        <span>{{idx}}</span>
+                        <br><br>
+                    </center>
+                </div>
+            {% endfor %}
+        </div>
+
+       <table id='article_table'>
            <tr>
-                <td style="text-align: left;"><span class="arrow">◀</span></td>
                 <td>
                     <div id="wrapper">
-                        <h1>PDF {{page}}p</h1>
+                        <center><h1><b>{{fileName}}.pdf</b>&nbsp;&nbsp;&nbsp; {{page}}p</h1></center>
 
                         <form style="float:right;">
                             <label>
@@ -235,11 +257,10 @@
                         </form>
 
                         <div class="image-decorator">
-                            <img alt="Image principale" id="example" src = "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{page}}.png"/>
+                            <img alt="Image principale" id="pageImg" src = "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{page}}.png"/>
                         </div>
                     </div>
                 </td>
-                <td style="text-align: right;"><span class="arrow">▶</span></td>
                 
                 <td width="60px">
                     <input type="button" id="extract" value="테이블 추출👉" style="font-size: 18px; cursor:pointer;"/>
@@ -249,6 +270,17 @@
                     <h1>Table Result</h1>
                     <div id='table_printer'></div>
                 </td>
+            </tr>
+            <tr>
+                <td>
+                    <center>
+                        <span class="arrow">◀</span>
+                        <input type="text">
+                        <span class="arrow">▶</span>
+                    </center>
+                </td>
+                <td></td>
+                <td></td>
            </tr>
        </table>
 	</body>
