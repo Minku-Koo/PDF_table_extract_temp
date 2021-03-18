@@ -90,8 +90,8 @@
 					var selectedAreas = $('img#pageImg').selectAreas('areas');
                     
                     if (selectedAreas.length > 0) {
-                        const imageWidth = $('#example').width();
-                        const imageHeight = $('#example').height();
+                        const imageWidth = $('#pageImg').width();
+                        const imageHeight = $('#pageImg').height();
                     
                         var table_option = $("input[name='optradio']:checked").val();
                         var jsons = {};
@@ -245,6 +245,7 @@
                 <li onclick='location.href="/"'>HOME</li>
                 <li>BLAH BLAH</li>
                 <li>BLAH BLAH</li>
+                <!-- <li style='font-size: 24px;'><b>{{fileName}}.pdf</b>&nbsp;&nbsp;&nbsp; p{{page}}</li> -->
             </ul>
         </header>
         <div id='page_list_box'>
@@ -279,7 +280,6 @@
            <tr>
                 <td>
                     <div id="wrapper">
-                        <!-- <center><p style='font-size: 24px'><b>{{fileName}}.pdf</b>&nbsp;&nbsp;&nbsp; p{{page}}</p></center> -->
 
                         <input type='button' value='Auto Detected'>
                         <div style='float:right'>

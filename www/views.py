@@ -3,7 +3,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-17
+# Last modified on 2021-03-18
 #
 
 from flask import (
@@ -169,7 +169,8 @@ def doExtract_page():
         regions = []
         for k, v in jsons.items():
             v = json.loads(v)
-        
+            regions.append( get_regions(v, page_file) )
+
         result = extract(regions, page_file, table_option, line_scale)
         
         if len(result) > 0:
