@@ -35,7 +35,7 @@ dirpath = "./test-photo/"
 imgname = "page-2"
 # imgname = "short"
 imgname = "border"
-imgname = "merge"
+imgname = "merge11"
 
 imagename = dirpath+imgname+".png"
 process_background = False
@@ -68,12 +68,12 @@ b = [390, 300]
 a = [5, 500]
 b = [390, 750]
 
-a = [5, 2]
-b = [710, 699]
+a = [300, 1500]
+b = [2500, 3000]
 
 regions = [[a[0], a[1], b[0]-a[0], b[1]-a[1]]]
 # regions = [[a[0],  b[0],a[1], b[1]]]
-line_scale=15
+line_scale= 40
 iterations = 0
 
 vertical_mask, vertical_segments = find_lines(
@@ -142,7 +142,10 @@ def hello(contours, vertical_segments, horizontal_segments):
         
         elif tables[index-1][1]==False and tables[index][1]:
             print("meet table")
-            table_set.append( tables[index][0] )
+            if table_set == []:
+                table_set = [ tables[index-1][0], tables[index][0] ]
+            else:
+                table_set.append( tables[index][0] )
             result.append( table_set )
             table_set = []
         
@@ -219,7 +222,7 @@ def hello(contours, vertical_segments, horizontal_segments):
     return result
     
     
-def addVerticalLine(vertical_mask, merge_table, size=2):
+def addVerticalLine(vertical_mask, merge_table, size=3):
     for table in merge_table:
         x_value1 = table[0][0]
         x_value2 = table[0][0] + table[0][2]
@@ -234,22 +237,26 @@ def addVerticalLine(vertical_mask, merge_table, size=2):
         
     return vertical_mask
         
-        
-        
-
-# show_plot( threshold)
+print("original")
+show_plot( threshold)
 
 contours = find_contours(vertical_mask, horizontal_mask)
 print("contours::",contours)
 
 vertical_mask = addOutline("v", vertical_mask, contours)
-# show_plot( vertical_mask)
+print("after add vertical")
+show_plot( vertical_mask)
 
 horizontal_mask = addOutline("h", horizontal_mask, contours)
-# show_plot( horizontal_mask)
+print("after add horizontal")
+show_plot( horizontal_mask)
+
 contours = find_contours(vertical_mask, horizontal_mask)
 print("contours-2::",contours)
+print("vertical  + horizontal")
 show_plot( horizontal_mask + vertical_mask)
+
+print("this is result")
 addVerticalList = hello(contours, vertical_segments, horizontal_segments)
 vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
 show_plot( horizontal_mask + vertical_mask)

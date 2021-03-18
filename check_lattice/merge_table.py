@@ -51,7 +51,11 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
         
         elif tables[index-1][1]==False and tables[index][1]:
             # print("meet table")
-            table_set.append( tables[index][0] )
+            if table_set == []:
+                table_set = [ tables[index-1][0], tables[index][0] ]
+            else:
+                table_set.append( tables[index][0] )
+            # table_set.append( tables[index][0] )
             result.append( table_set )
             table_set = []
         
@@ -130,7 +134,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
     return result
     
     
-def addVerticalLine(vertical_mask, merge_table, size=2):
+def addVerticalLine(vertical_mask, merge_table, size=3):
     for table in merge_table:
         x_value1 = table[0][0]
         x_value2 = table[0][0] + table[0][2]
