@@ -79,12 +79,14 @@ class Lattice2(Lattice):
             
             vertical_mask = addOutline("v", vertical_mask, contours)
             horizontal_mask = addOutline("h", horizontal_mask, contours)
-            
+            print("table merge start2")
             # after addOutline
             contours = find_contours(vertical_mask, horizontal_mask)
             
             addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
             vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
+
+            contours = find_contours(vertical_mask, horizontal_mask)
 
             table_bbox = find_joints(contours, vertical_mask, horizontal_mask)
         else:
@@ -105,12 +107,14 @@ class Lattice2(Lattice):
             
             vertical_mask = addOutline("v", vertical_mask, areas) # maybe
             horizontal_mask = addOutline("h", horizontal_mask, areas) # maybe
-            
+            print("table merge start")
             # after addOutline
             contours = find_contours(vertical_mask, horizontal_mask)
             
             addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
             vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
+
+            areas = find_contours(vertical_mask, horizontal_mask)
 
             table_bbox = find_joints(areas, vertical_mask, horizontal_mask)
 

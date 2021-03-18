@@ -206,7 +206,7 @@ def doExtract_page():
             regions.append( get_regions(v, page_file) )
 
         result = extract(regions, page_file, table_option, line_scale)
-        
+        import camelot
         if len(result) > 0:
             html = []
             bboxs = []

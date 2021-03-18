@@ -7,7 +7,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
     # y 값으로 정렬
     contours = sorted(contours, key = lambda x : x[1])
     vertical_segments = sorted(vertical_segments, key = lambda x : x[-1])
-    # print("after sorted:", contours)
+    print("after sorted:", contours)
     # print("vertical_segments::",vertical_segments)
     scale = 10 # 테이블 아닌 선분이 테이블로 인식되는 경우, 최소 두께 (line scale로 하면 될듯)
     
@@ -44,7 +44,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
         if index-1 not in tables.keys(): continue
         
         # 조건 판단
-        # print("*****", end="")
+        print("*****", end="")
         if tables[index-1][1] and tables[index][1]==False:
             print("meet line")
             table_set = [ tables[index-1][0], tables[index][0] ]
@@ -55,12 +55,27 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
                 table_set = [ tables[index-1][0], tables[index][0] ]
             else:
                 table_set.append( tables[index][0] )
+            print("table set", table_set)
             result.append( table_set )
             table_set = []
         
         elif tables[index-1][1]==False and tables[index][1]==False:
             print("line and line")
-            table_set.append( tables[index][0] )
+            
+            if table_set == []:
+                print("time set empty")
+                table_set = [ tables[index-1][0], tables[index][0] ]
+            else:
+                table_set.append( tables[index][0] )
+            print("table set 장애인")
+            for idx, i in enumerate(table_set, 1):
+                print(f'index:{index} 장애인{idx} : {i}')
+            #for i in table_set: print("i>>",i)
+            #table_set.append( table_set )
+            print(f'\n\n이새끼가 병신일수도 table_set:{table_set}\n\n')
+            print('근데 이새낀 왜 result에 append를 안함')
+            print('내가 추가해 봄')
+            result.append( table_set )
         
         else: # true true
             #  조건 1 : 넓이가 같은가
@@ -106,22 +121,25 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
                 y_value = tables[index][0][1]
                 if y_value <= h_y_value <= y_value + tables[index][0][-1] :
                     hs_list[1].append( h_y_value )
-            # print("hs_list", hs_list)
+            print("hs_list", hs_list)
             
             # 테이블 간격이 row 평균보다 넓으면 테이블 연속 아님
             top_value = tables[index-1][0][1]+tables[index-1][0][-1]
             bottom_value = tables[index][0][1]
             row_value1 = sum([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) / (len(hs_list[0])-1)
             row_value2 = sum([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) / (len(hs_list[1])-1)
+            # 이부분 수정할 것, table + table  merge
             row_value = max( row_value1, row_value2 )
             table_by_table = bottom_value - top_value
-            
+            print("row_value1",row_value1)
+            print("row_value2",row_value2)
             print("bottom_value",bottom_value)
             print("top_value",top_value)
             print("table_by_table",table_by_table)
             print("row_value",row_value)
             
             if table_by_table > row_value:
+                print("no table , continue")
                 continue
             else:
                 table_set.extend( [ tables[index-1][0], tables[index][0] ] )
@@ -129,19 +147,29 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
             result.append( table_set )
             table_set = []
             
-        print("result", result)
+        print(">>result", result)
     return result
     
     
 def addVerticalLine(vertical_mask, merge_table, size=2):
+    print("add vertical line")
+    print("lenght:", len(merge_table))
+    print()
     for table in merge_table:
+        print(">fuck>", table)
         x_value1 = table[0][0]
         x_value2 = table[0][0] + table[0][2]
         y_value1 = table[0][1]
         y_value2 = table[-1][1]
+
+        print("x_value1",x_value1)
+        print("x_value2",x_value2)
+        print("y_value1",y_value1)
+        print("y_value2",y_value2)
         
         vertical_mask[y_value1:y_value2+size, x_value1-size:x_value1+size] = 255
         vertical_mask[y_value1:y_value2+size, x_value2-size:x_value2+size] = 255
+
         
     return vertical_mask
         
