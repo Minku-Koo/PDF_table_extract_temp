@@ -33,7 +33,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
         
     isTable = False
     table_set = []
-    # print("tables>>",tables)
+    print("tables>>",tables)
     # print("max table",max(tables.keys())+1)
     # print("horizontal_segments",horizontal_segments)
     for index in range(1, max(tables.keys())+1):
@@ -46,22 +46,22 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
         # 조건 판단
         # print("*****", end="")
         if tables[index-1][1] and tables[index][1]==False:
-            # print("meet line")
+            print("meet line")
             table_set = [ tables[index-1][0], tables[index][0] ]
         
         elif tables[index-1][1]==False and tables[index][1]:
-            # print("meet table")
+            print("meet table")
             table_set.append( tables[index][0] )
             result.append( table_set )
             table_set = []
         
         elif tables[index-1][1]==False and tables[index][1]==False:
-            # print("line and line")
+            print("line and line")
             table_set.append( tables[index][0] )
         
         else: # true true
             #  조건 1 : 넓이가 같은가
-            # print("both table")
+            print("both table")
             if tables[index-1][0][2] != tables[index][0][2]: continue
             # 조건 2 : x 좌표가 동일한가
             if tables[index-1][0][0] != tables[index][0][0]: continue
@@ -112,12 +112,12 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
             row_value2 = sum([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) / (len(hs_list[1])-1)
             row_value = max( row_value1, row_value2 )
             table_by_table = bottom_value - top_value
-            '''
+            
             print("bottom_value",bottom_value)
             print("top_value",top_value)
             print("table_by_table",table_by_table)
             print("row_value",row_value)
-            '''
+            
             if table_by_table > row_value:
                 continue
             else:
@@ -126,7 +126,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
             result.append( table_set )
             table_set = []
             
-        #print("result", result)
+        print("result", result)
     return result
     
     

@@ -20,6 +20,7 @@ from camelot.image_processing import (
 )
 
 from check_lattice.make_border import addOutline # call module
+from check_lattice.merge_table import tableMerge, addVerticalLine # call module
 
 class Lattice2(Lattice):
     
@@ -78,6 +79,12 @@ class Lattice2(Lattice):
             
             vertical_mask = addOutline("v", vertical_mask, contours)
             horizontal_mask = addOutline("h", horizontal_mask, contours)
+            
+            # after addOutline
+            contours = find_contours(vertical_mask, horizontal_mask)
+            
+            addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
+            vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
 
             table_bbox = find_joints(contours, vertical_mask, horizontal_mask)
         else:
@@ -98,6 +105,12 @@ class Lattice2(Lattice):
             
             vertical_mask = addOutline("v", vertical_mask, areas) # maybe
             horizontal_mask = addOutline("h", horizontal_mask, areas) # maybe
+            
+            # after addOutline
+            contours = find_contours(vertical_mask, horizontal_mask)
+            
+            addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
+            vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
 
             table_bbox = find_joints(areas, vertical_mask, horizontal_mask)
 
