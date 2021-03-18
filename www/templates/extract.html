@@ -25,29 +25,72 @@
         
         
 		<script type="text/javascript">
+            var this_page = 1;
+
             $( document ).tooltip();
-			$(document).ready(function () {
-                // 페이지 썸네일 누르면 해당 부분으로 스크롤
-                document.getElementById('thumb_page_{{page}}').scrollIntoView({
+            
+
+            // 페이지 이동 함수 (pre_page는 현재 페이지, page는 이동할 페이지)
+            function move_page(pre_page, page){
+                this_page = page;
+
+                // 스크롤바를 현재 선택된 썸네일로 이동시키고 중간에 위치하게함
+                document.getElementById('thumb_page_'+page).scrollIntoView({
                     behavior: 'auto',
                     block: 'center',
                     inline: 'center'
                 });
 
+                // thumb_img_select 클래스가 적용된 썸네일은 빨간 테두리가 표시됨 (현재 선택된 페이지라는 뜻)
+                $('#thumb_page_'+pre_page).removeClass('thumb_img_select');
+                $('#thumb_page_'+page).addClass('thumb_img_select');
+
+                $('img#pageImg').attr('src', "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-"+page+".png");
+            }
+
+			$(document).ready(function () {
+                // 추출할 메인 이미지 교체
+                $('img#pageImg').attr("src", "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-"+this_page+".png");
+
+                console.log('{{detected_areas}}');
+
+                // 테이블 선택 영역 표시 함수
+                function set_select_areas(bboxs){
+                    if(bboxs != 0){
+                        bboxs = bboxs.split(";");
+                        
+                        $("#pageImg").selectAreas('reset');
+                        
+                        arrs = [];
+                        for(i=0 ; i<bboxs.length ; i++){
+                            var arr = bboxs[i].split(',');
+                            
+                            arrs.push({
+                                x: Number(arr[0]),
+                                y: Number(arr[1]),
+                                width: Number(arr[2]),
+                                height: Number(arr[3]),
+                            });
+                        }
+                        
+                        $("#pageImg").selectAreas('add', arrs);
+                    }
+                }
+
                 $('.arrow').click(function () {
 					direction = $(this).text();
-                    var page = 166;
-                    
+                    pre_page = this_page;
+
                     if (direction == "◀"){
-                        page = Number("{{page}}")-1;
-                        if(page < 1){
-                            page = 1;
+                        this_page = Number(this_page)-1;
+                        if(this_page < 1){
+                            this_page = 1;
                         }
                     }
                     else{
-                        page = Number("{{page}}")+1;
+                        this_page = Number(this_page)+1;
                     }
-                    location.href = '/extract_page?fileName='+"{{fileName}}"+'&&page='+String(page);
+                    move_page(pre_page, this_page);
 				});
             
                 $('#get_line_size').click(function () {
@@ -69,7 +112,7 @@
 
                         $.ajax({
                             url: '/getLineScale',
-                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":"{{page}}"},
+                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page},
                             dataType:'json',
                             type: 'POST',
                             success: function (data) {
@@ -105,7 +148,7 @@
                         
                          $.ajax({
                             url: '/doExtract',
-                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":"{{page}}", "table_option":table_option, "line_scale":$("#line_scale").val()},
+                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page, "table_option":table_option, "line_scale":$("#line_scale").val()},
                             dataType:'json',
                             type: 'POST',
                             success: function (data) {
@@ -116,7 +159,7 @@
                                 if(bboxs != 0){
                                     bboxs = bboxs.split(";");
                                     
-                                    $("#example").selectAreas('reset');
+                                    $("#pageImg").selectAreas('reset');
                                     
                                     arrs = [];
                                     for(i=0 ; i<bboxs.length ; i++){
@@ -130,7 +173,7 @@
                                         });
                                     }
                                     
-                                    $("#example").selectAreas('add', arrs);
+                                    $("#pageImg").selectAreas('add', arrs);
                                 }
                             },
                             error: function (error) {
@@ -144,14 +187,12 @@
                     width: window.innerWidth / 3.84
 				});
 
+
                 setTimeout(function(){
                     var imageWidth = $('#pageImg').width();
                     var imageHeight = $('#pageImg').height();
 
                     $('.image-decorator div, .image-decorator img').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
-
-                    // $('.image-decorator div, .image-decorator img').css({'height':'100vh','max-height': '100%', 'width':(imageWidth/imageHeight*100)+'vw'});
-                    // $('.image-decorator>div').css({'height':'100%', 'width':$('#pageImg').width()+'px'});
                 }, 500);
 
 
@@ -252,20 +293,22 @@
             {% for idx in range(1, totalPage+1) %}
                 <div class='thumb_page'>
                     <center>
-                        {% if idx | string == page %}
+                        {% if idx == 1 %}
                         <img
-                            class='thumb_img'
+                            class='thumb_img thumb_img_select'
                             src="{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{idx}}-thumb.png"
-                            onclick="location.href = '/extract_page?fileName='+'{{fileName}}'+'&&page='+'{{idx}}';"
-                            style="cursor: pointer; border: 2px solid #F52C05;"
+                            onclick="
+                                    move_page(this_page, '{{idx}}');
+                                "
                             id="thumb_page_{{idx}}">
 
                         {% else %}
                         <img
                             class='thumb_img'
                             src="{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{idx}}-thumb.png"
-                            onclick="location.href = '/extract_page?fileName='+'{{fileName}}'+'&&page='+'{{idx}}';"
-                            style="cursor: pointer; border: 1px solid black;"
+                            onclick="
+                                    move_page(this_page, '{{idx}}');
+                                "
                             id="thumb_page_{{idx}}">
                         {% endif %}
                         <br>
@@ -293,7 +336,7 @@
                         </div>
 
                         <div class="image-decorator">
-                            <img alt="Image principale" id="pageImg" src = "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{page}}.png"/>
+                            <img alt="Image principale" id="pageImg"/>
                         </div>
                         
                     <center>

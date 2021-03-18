@@ -17,13 +17,17 @@ import cv2
 
 import camelot
 from camelot.core import TableList
-from camelot.parsers import Lattice, Stream
+
+from camelot.parsers import Stream
+from check_lattice.Lattice_2 import Lattice2
+
 from camelot.ext.ghostscript import Ghostscript
 
 from flask import session
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from camelot.utils import get_page_layout, get_text_objects, get_rotation
+from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_areas
 
 # from .utils.file import mkdirs
 
@@ -66,7 +70,7 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             null.close()
 
             # creating thumbnail image
-            gs_call = "-q -sDEVICE=png16m -o {} -r30 {}".format(thumb_imagepath, filepath)
+            gs_call = "-q -sDEVICE=png16m -o {} -r50 {}".format(thumb_imagepath, filepath)
             gs_call = gs_call.encode().split()
             null = open(os.devnull, "wb")
             with Ghostscript(*gs_call, stdout=null) as gs:
@@ -81,8 +85,8 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             # imagenames[page] = imagename
             # imagepaths[page] = imagepath
 
-            # filedims[page] = get_file_dim(filepath)
-            # imagedims[page] = get_image_dim(imagepath)
+            filedims[page] = get_file_dim(filepath)
+            imagedims[page] = get_image_dim(imagepath)
 
             # lattice_areas, stream_areas = (None for i in range(2))
             # lattice
@@ -95,6 +99,20 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             #         lattice_areas.append((x1, y2, x2, y1))
 
             # detected_areas[page] = {"lattice": lattice_areas, "stream": stream_areas}
+            
+            lattice_areas = None
+            # lattice
+            parser = Lattice2(line_scale=30)
+            tables = parser.extract_tables(filepath)
+            # if len(tables):
+            #     lattice_areas = []
+            #     for table in tables:
+            #         x1, y1, x2, y2 = table._bbox
+            #         lattice_areas.append((x1, y2, x2, y1))
+
+            # detected_areas[page] = {"lattice": lattice_areas}
+            detected_areas[page] = tables
+
 
         # file.extract_pages = json.dumps(extract_pages)
         # file.total_pages = total_pages
@@ -106,7 +124,7 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
         # file.filedims = json.dumps(filedims)
         # file.imagedims = json.dumps(imagedims)
         # file.detected_areas = json.dumps(detected_areas)
-        return False
+        return detected_areas
     except Exception as e:
         logging.exception(e)
 
@@ -201,15 +219,15 @@ def get_image_dim(imagepath):
 
 
 
-def extract(job_id):
+def extract():
     try:
-        job = session.query(Job).filter(Job.job_id == job_id).first()
-        rule = session.query(Rule).filter(Rule.rule_id == job.rule_id).first()
-        file = session.query(File).filter(File.file_id == job.file_id).first()
+        # job = session.query(Job).filter(Job.job_id == job_id).first()
+        # rule = session.query(Rule).filter(Rule.rule_id == job.rule_id).first()
+        # file = session.query(File).filter(File.file_id == job.file_id).first()
 
-        rule_options = json.loads(rule.rule_options)
-        flavor = rule_options.pop("flavor")
-        pages = rule_options.pop("pages")
+        # rule_options = json.loads(rule.rule_options)
+        # flavor = rule_options.pop("flavor")
+        # pages = rule_options.pop("pages")
 
         tables = []
         filepaths = json.loads(file.filepaths)

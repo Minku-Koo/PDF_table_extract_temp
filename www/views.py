@@ -21,7 +21,7 @@ from werkzeug.utils import secure_filename
 
 from utils.file_path import file_path_select
 from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_areas
-from utils.tasks import split as pdf_split
+from utils.tasks import split as task_split
 
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
@@ -37,6 +37,7 @@ import numpy as np
 
 views = Blueprint("views", __name__)
 split_progress = {} # split 작업 진행도
+detected_areas = {}
 
 
 # 기본 인덱스 페이지, 이곳에서 pdf파일을 업로드할 수 있음
@@ -66,6 +67,8 @@ def example():
 @views.route("/uploadPDF", methods = ['POST'])
 def uploadPDF():
     global split_progress
+    global detected_areas
+
     if 'file' not in request.files:
         resp = jsonify({'message' : 'No file part in the request'})
         resp.status_code = 400
@@ -105,9 +108,30 @@ def uploadPDF():
 
     # main 
     if success:
-        # extract() # 이부분에 작업 넣으면 좋을 듯
         # original pdf -> split 1, 2 .... n page pdf
-        pdf_split(filepath, file_page_path, split_progress)
+        result = task_split(filepath, file_page_path, split_progress)
+
+        if len(result) > 0:
+            v = {}
+            for page, tables in result.items():
+                bboxs = []
+
+                page_file = file_page_path + f"\\page-{page}.pdf"
+                image_file = file_page_path + f"\\page-{page}.png"
+
+                v['imageHeight'], v['imageWidth'], _ = cv2.cv2.imread(image_file).shape
+
+                for table in tables:
+                    bbox = table._bbox
+                    bboxs.append( bbox_to_areas(v, bbox, page_file) )
+                    
+                bboxs = ";".join(bboxs)
+                result[page] = bboxs;
+            
+        else:
+            bboxs = 0
+
+        detected_areas[filename.replace('.pdf', '')] = result
 
         resp = jsonify({'message' : 'Files successfully uploaded'})
         resp.status_code = 201
@@ -129,13 +153,16 @@ def getProgress():
 # 추출할 pdf파일이 정해졌을때 추출을 진행하는 라우트 (Get 요청으로 pdf파일 명시)
 @views.route("/extract_page", methods=['GET'])
 def extract_page():
+    global detected_areas
+
     fileName = request.args.get("fileName")
-    page = request.args.get("page")
+    # page = request.args.get("page")
 
-    if page is None:
-        page = 1
+    # if page is None:
+    #     page = 1
 
-    if fileName is not None and page is not None:
+    # if fileName is not None and page is not None:
+    if fileName is not None:
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], fileName)
         file_page_path = os.path.splitext(filepath)[0]
         filepath = os.path.join(file_page_path, fileName+'.pdf')
@@ -145,7 +172,14 @@ def extract_page():
         total_page = infile.getNumPages()
         inputstream.close()
 
-        return render_template('extract.html', fileName=fileName, page=page, totalPage=total_page)
+        # return render_template('extract.html', fileName=fileName, page=page, totalPage=total_page)
+        return render_template(
+            'extract.html',
+            fileName=fileName,
+            totalPage=total_page,
+            # detected_areas=json.dumps(detected_areas[fileName])
+            detected_areas=detected_areas[fileName]
+        )
 
     else:
         return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')

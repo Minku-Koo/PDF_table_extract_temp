@@ -3,7 +3,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-09
+# Last modified on 2021-03-18
 #
 
 # from camelot.io import read_pdf
@@ -30,7 +30,7 @@ def get_regions(v, page_file):
     return f'{x1},{y1},{x2},{y2}'
 
 
-# koo fix -> imread ´ë½Å »ç¿ë, ÇÑ±Û °æ·Î ¿À·ù ½Ã
+# koo fix -> imread ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½Ñ±ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 def hangulFilePathImageRead ( filePath ) : 
     import numpy as np
     stream = open( filePath.encode("utf-8") , "rb") 
@@ -39,7 +39,6 @@ def hangulFilePathImageRead ( filePath ) :
     return cv2.imdecode(numpyArray , cv2.IMREAD_UNCHANGED)
     
 def get_regions_img(v, img_file):
-    
     imgDims = cv2.imread(img_file).shape
     # koo fix
     # imgDims= hangulFilePathImageRead( img_file ).shape
@@ -75,4 +74,4 @@ def bbox_to_areas(v, bbox, page_file):
     height = abs( imageHeight - bbox[3] / scalingFactorY - y )
     y -= height
     
-    return f'{x},{y},{width},{height}'
+    return f"{x},{y},{width},{height}"

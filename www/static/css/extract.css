@@ -44,6 +44,12 @@ header li{
 }
 .thumb_img{
 	width: 80%;
+	cursor: pointer;
+	border: 1px solid black;
+}
+
+.thumb_img_select{
+	border: 2px solid #F52C05;
 }
 
 
