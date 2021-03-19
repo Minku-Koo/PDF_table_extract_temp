@@ -74,4 +74,4 @@ def bbox_to_areas(v, bbox, page_file):
     height = abs( imageHeight - bbox[3] / scalingFactorY - y )
     y -= height
     
-    return f"{x},{y},{width},{height}"
+    return f"{int(x)},{int(y)},{int(width)},{int(height)}"

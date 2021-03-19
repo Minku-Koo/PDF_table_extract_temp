@@ -123,7 +123,7 @@ def uploadPDF():
 
                 for table in tables:
                     bbox = table._bbox
-                    bboxs.append( bbox_to_areas(v, bbox, page_file) )
+                    bboxs.append( bbox_to_areas(v, bbox, page_file)+f",{v['imageWidth']},{v['imageHeight']}" )
                     
                 bboxs = ";".join(bboxs)
                 result[page] = bboxs;
