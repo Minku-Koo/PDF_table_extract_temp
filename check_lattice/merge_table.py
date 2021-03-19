@@ -1,135 +1,129 @@
 ﻿#python
+"""
+# one table but camelot cannot detected. 
+# it can detected tables as one, and merging
+# start : 20200319
+# update : 20200320
+# minku Koo
+"""
 
-
-def tableMerge(contours, vertical_segments, horizontal_segments):
-    # print("hello")
+#  find Tables that require merging on page
+def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
+    """
+    Parameters
+        contours <tuple in list> : detedted table
+        vertical_segments <tuple in list> : vertical line position
+        horizontal_segments <tuple in list> : horizontal line position
+        scale <int> : If bigger than scale value, judge by table
+                      If smaller than scale value, jedge by line (default = 15)
+    
+    returns
+        result <tuple in list> : Tables that require merging
+    """
     result = []
-    # y 값으로 정렬
+    #  y 좌표로 오름차순 정렬
     contours = sorted(contours, key = lambda x : x[1])
     vertical_segments = sorted(vertical_segments, key = lambda x : x[-1])
-    print("after sorted:", contours)
-    # print("vertical_segments::",vertical_segments)
-    scale = 10 # 테이블 아닌 선분이 테이블로 인식되는 경우, 최소 두께 (line scale로 하면 될듯)
     
-    isTable = True
-    tables = {} 
+    isTable = True # table or line
+    tables = {} # detected table list / key: table index, value : [ table contours, isTable ]
     for index, table in enumerate(contours):
         isTable = True if table[-1] > scale else False
         if index == 0: 
             tables[index] = [table , isTable]
             continue
             
-        if not isTable: # 선분
-            #  조건 1 : 넓이가 같은가
-            if contours[index-1][2] != table[2]: 
-                # isTable = False
-                continue
-            # 조건 2 : x 좌표가 동일한가
-            if contours[index-1][0] != table[0]: 
-                # isTable = False
-                continue
+        if not isTable: # if not table, line
+            #  condition 1 : is same width?
+            if contours[index-1][2] != table[2]: continue
+            #  condition 2 : is same x coordinate?
+            if contours[index-1][0] != table[0]: continue
         
         tables[index] = [table , isTable]
         
-    isTable = False
-    table_set = []
-    print("tables>>",tables)
-    # print("max table",max(tables.keys())+1)
-    # print("horizontal_segments",horizontal_segments)
+    isTable = False # table or line
+    sameTable = [] # this list append same table
+    
     for index in range(1, max(tables.keys())+1):
-        # 연속되지 않으면 
+        # if not continuity
         if index not in tables.keys(): 
-            table_set = []
+            sameTable = []
             continue
         if index-1 not in tables.keys(): continue
         
-        # 조건 판단
-        print("*****", end="")
-        if tables[index-1][1] and tables[index][1]==False:
+        before_table, now_table = tables[index-1], tables[index]
+        
+        # kind of table check
+        # 1. table - line
+        if before_table[1] and now_table[1]==False:
             print("meet line")
-            table_set = [ tables[index-1][0], tables[index][0] ]
+            sameTable = [ before_table[0], now_table[0] ]
         
-        elif tables[index-1][1]==False and tables[index][1]:
+        # 2. line - table
+        elif before_table[1]==False and now_table[1]:
             print("meet table")
-            if table_set == []:
-                table_set = [ tables[index-1][0], tables[index][0] ]
+            if sameTable == []:
+                sameTable = [ before_table[0], now_table[0] ]
             else:
-                table_set.append( tables[index][0] )
-            print("table set", table_set)
-            result.append( table_set )
-            table_set = []
+                sameTable.append( now_table[0] )
+            print("sameTable", sameTable)
+            result.append( sameTable )
+            sameTable = []
         
-        elif tables[index-1][1]==False and tables[index][1]==False:
+        # 3. line - line
+        elif before_table[1]==False and now_table[1]==False:
             print("line and line")
-            
-            if table_set == []:
-                print("time set empty")
-                table_set = [ tables[index-1][0], tables[index][0] ]
+            if sameTable == []:
+                sameTable = [ before_table[0], now_table[0] ]
             else:
-                table_set.append( tables[index][0] )
-            print("table set 장애인")
-            for idx, i in enumerate(table_set, 1):
-                print(f'index:{index} 장애인{idx} : {i}')
-            #for i in table_set: print("i>>",i)
-            #table_set.append( table_set )
-            print(f'\n\n이새끼가 병신일수도 table_set:{table_set}\n\n')
-            print('근데 이새낀 왜 result에 append를 안함')
-            print('내가 추가해 봄')
-            result.append( table_set )
-        
-        else: # true true
-            #  조건 1 : 넓이가 같은가
+                sameTable.append( now_table[0] )
+            
+        # 4. table - table
+        else:
+            # condition check
+            # 1 : is same width?
             print("both table")
-            if tables[index-1][0][2] != tables[index][0][2]: continue
-            # 조건 2 : x 좌표가 동일한가
-            if tables[index-1][0][0] != tables[index][0][0]: continue
-            # 조건 3 : 테이블 사이에 텍스트가 존재하는가
-            # pass
-            # 조건 4 : 두 테이블의 세로축이 하나라도 일치하는가
-            # y_value = tables[index-1][0][1]
-            vs_list = [[], []]
+            if before_table[0][2] != now_table[0][2]: continue
+            # 2 : is same x coordinate?
+            if before_table[0][0] != now_table[0][0]: continue
+            # 3 : Are any of the vertical axes of the two tables consistent?
+            vs_list = [[], []] # vertical line x coordinate list, table 1 and table 2
             for vs in vertical_segments:
-                # if vs[]
-                y_value = tables[index-1][0][1]
-                if y_value <= vs[1] <= y_value + tables[index-1][0][-1] :
+                y_value = before_table[0][1] # if line in table 1
+                if y_value <= vs[1] <= y_value + before_table[0][-1] :
                     vs_list[0].append( vs[0] )
-                y_value = tables[index][0][1]
-                if y_value <= vs[1] <= y_value + tables[index][0][-1] :
+                y_value = now_table[0][1] # if line in table 2
+                if y_value <= vs[1] <= y_value + now_table[0][-1] :
                     vs_list[1].append( vs[0] )
                     
-            for v in vs_list[0]:
+            for v in vs_list[0]: # if table 1 line and table 2 line are same
                 if v in vs_list[1]:
-                    # print("tables[index-1][0]",tables[index-1][0])
-                    isTable = True
-                    # table_set.extend( [ tables[index-1][0], tables[index][0] ] )
-                    # print("same vertical")
+                    isTable = True 
                     break
-            # print("table_set",table_set)
-            # result.append( table_set )
-            # table_set = []
             
             if not isTable: continue
-            # 조건 5 : 테이블 사이 간격이 테이블의 간격보다 작거나 같은가
-            hs_list = [[], []]
+            # 4 : check interval between tables
+            hs_list = [[], []]  # horizontal line y coordinate list, table 1 and table 2
             for hs in horizontal_segments:
-                # if vs[]
-                h_y_value = hs[1]
-                
-                y_value = tables[index-1][0][1]
-                if y_value <= h_y_value <= y_value + tables[index-1][0][-1] :
+                h_y_value = hs[1] # line y coordinate
+                y_value = before_table[0][1] # table 1 y coordinate
+                if y_value <= h_y_value <= y_value + before_table[0][-1] :
                     hs_list[0].append( h_y_value )
-                y_value = tables[index][0][1]
-                if y_value <= h_y_value <= y_value + tables[index][0][-1] :
+                y_value = now_table[0][1] # table 2 y coordinate
+                if y_value <= h_y_value <= y_value + now_table[0][-1] :
                     hs_list[1].append( h_y_value )
-            print("hs_list", hs_list)
             
-            # 테이블 간격이 row 평균보다 넓으면 테이블 연속 아님
-            top_value = tables[index-1][0][1]+tables[index-1][0][-1]
-            bottom_value = tables[index][0][1]
-            row_value1 = sum([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) / (len(hs_list[0])-1)
-            row_value2 = sum([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) / (len(hs_list[1])-1)
+            
+            top_value = before_table[0][1] + before_table[0][-1]
+            bottom_value = now_table[0][1]
+            # this is avertage
+            # row_value1 = sum([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) / (len(hs_list[0])-1)
+            # row_value2 = sum([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) / (len(hs_list[1])-1)
+            # this is minimum value
+            row_value1 = min([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) 
+            row_value2 = min([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) 
             # 이부분 수정할 것, table + table  merge
-            row_value = max( row_value1, row_value2 )
+            row_value = min( row_value1, row_value2 )
             table_by_table = bottom_value - top_value
             print("row_value1",row_value1)
             print("row_value2",row_value2)
@@ -142,35 +136,36 @@ def tableMerge(contours, vertical_segments, horizontal_segments):
                 print("no table , continue")
                 continue
             else:
-                table_set.extend( [ tables[index-1][0], tables[index][0] ] )
+                sameTable.extend( [ before_table[0], now_table[0] ] )
             
-            result.append( table_set )
-            table_set = []
+            result.append( sameTable )
+            sameTable = []
             
         print(">>result", result)
     return result
     
-    
+# add virture vertical line on merge table
 def addVerticalLine(vertical_mask, merge_table, size=2):
-    print("add vertical line")
-    print("lenght:", len(merge_table))
-    print()
+    """
+    Parameters
+        vertical_mask <nd.array> : vertical line threshold
+        merge_table <tuple in list> : Tables that require merging
+        size <int> : line size
+    
+    returns
+        vertical_mask <nd.array> : added vertical line on threshold
+    """
     for table in merge_table:
-        print(">fuck>", table)
+        # set x, y value
         x_value1 = table[0][0]
         x_value2 = table[0][0] + table[0][2]
         y_value1 = table[0][1]
         y_value2 = table[-1][1]
-
-        print("x_value1",x_value1)
-        print("x_value2",x_value2)
-        print("y_value1",y_value1)
-        print("y_value2",y_value2)
         
-        vertical_mask[y_value1:y_value2+size, x_value1-size:x_value1+size] = 255
-        vertical_mask[y_value1:y_value2+size, x_value2-size:x_value2+size] = 255
+        # add vertical line, left and right side
+        vertical_mask[y_value1 : y_value2+size, x_value1-size : x_value1+size] = 255
+        vertical_mask[y_value1 : y_value2+size, x_value2-size : x_value2+size] = 255
 
-        
     return vertical_mask
         
 if __name__ ==  "__main__":
@@ -185,6 +180,8 @@ if __name__ ==  "__main__":
     
     addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
     vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
+    
+    contours = find_contours(vertical_mask, horizontal_mask)
     
     '''
 
