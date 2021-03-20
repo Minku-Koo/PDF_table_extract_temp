@@ -56,23 +56,22 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         # kind of table check
         # 1. table - line
         if before_table[1] and now_table[1]==False:
-            print("meet line")
+            # meet line
             sameTable = [ before_table[0], now_table[0] ]
         
         # 2. line - table
         elif before_table[1]==False and now_table[1]:
-            print("meet table")
+            # meet table
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
             else:
                 sameTable.append( now_table[0] )
-            print("sameTable", sameTable)
             result.append( sameTable )
             sameTable = []
         
         # 3. line - line
         elif before_table[1]==False and now_table[1]==False:
-            print("line and line")
+            # line and line
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
             else:
@@ -80,9 +79,10 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             
         # 4. table - table
         else:
+            # both table
+            
             # condition check
             # 1 : is same width?
-            print("both table")
             if before_table[0][2] != now_table[0][2]: continue
             # 2 : is same x coordinate?
             if before_table[0][0] != now_table[0][0]: continue
@@ -122,18 +122,12 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             # this is minimum value
             row_value1 = min([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) 
             row_value2 = min([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) 
-            # 이부분 수정할 것, table + table  merge
+            # min row value, from both table
             row_value = min( row_value1, row_value2 )
             table_by_table = bottom_value - top_value
-            print("row_value1",row_value1)
-            print("row_value2",row_value2)
-            print("bottom_value",bottom_value)
-            print("top_value",top_value)
-            print("table_by_table",table_by_table)
-            print("row_value",row_value)
             
             if table_by_table > row_value:
-                print("no table , continue")
+                # no table, continue
                 continue
             else:
                 sameTable.extend( [ before_table[0], now_table[0] ] )
@@ -141,7 +135,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             result.append( sameTable )
             sameTable = []
             
-        print(">>result", result)
+        #print(">>result", result)
     return result
     
 # add virture vertical line on merge table
@@ -181,6 +175,7 @@ if __name__ ==  "__main__":
     addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
     vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
     
+    # get contours once again
     contours = find_contours(vertical_mask, horizontal_mask)
     
     '''
