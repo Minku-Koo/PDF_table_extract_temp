@@ -56,12 +56,10 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         # kind of table check
         # 1. table - line
         if before_table[1] and now_table[1]==False:
-            # meet line
             sameTable = [ before_table[0], now_table[0] ]
         
         # 2. line - table
         elif before_table[1]==False and now_table[1]:
-            # meet table
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
             else:
@@ -71,7 +69,6 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         
         # 3. line - line
         elif before_table[1]==False and now_table[1]==False:
-            # line and line
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
             else:
@@ -79,8 +76,6 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             
         # 4. table - table
         else:
-            # both table
-            
             # condition check
             # 1 : is same width?
             if before_table[0][2] != now_table[0][2]: continue
@@ -116,9 +111,11 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             
             top_value = before_table[0][1] + before_table[0][-1]
             bottom_value = now_table[0][1]
+            '''
             # this is avertage
             # row_value1 = sum([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) / (len(hs_list[0])-1)
             # row_value2 = sum([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) / (len(hs_list[1])-1)
+            '''
             # this is minimum value
             row_value1 = min([hs_list[0][x-1] - hs_list[0][x] for x in range(1, len(hs_list[0]))]) 
             row_value2 = min([hs_list[1][x-1] - hs_list[1][x] for x in range(1, len(hs_list[1]))]) 
@@ -135,7 +132,6 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             result.append( sameTable )
             sameTable = []
             
-        #print(">>result", result)
     return result
     
 # add virture vertical line on merge table
