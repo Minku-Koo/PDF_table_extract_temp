@@ -143,6 +143,7 @@ def uploadPDF():
         return resp
 
 
+# progress 진행도를 반환하는 라우트
 @views.route('/getProgress', methods = ['POST'])
 def getProgress():
     global split_progress
@@ -183,7 +184,6 @@ def extract_page():
 
     else:
         return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
-
 
 # 타겟 pdf 페이지 1장의 테이블을 추출하는 라우트
 @views.route("/doExtract", methods=['POST'])
@@ -252,7 +252,7 @@ def get_line_scale():
             
         return jsonify({'line_scale':getlinescale.line_scale})
 
-
+# 지정 pdf파일 지정 영역의 테이블을 추출하는 함수
 def extract(regions, page_file, table_option, line_scale=30):
     # output_camelot = read_pdf(page_file, flavor="lattice", table_regions=regions)
     tables = None
