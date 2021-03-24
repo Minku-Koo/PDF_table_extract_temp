@@ -176,6 +176,9 @@ def extract_page():
     global detected_areas
 
     fileName = request.args.get("fileName")
+    # page = request.args.get("page")
+    # if page is None:
+    #     page = 1
 
     # if fileName is not None and page is not None:
     if fileName is not None:
@@ -192,7 +195,8 @@ def extract_page():
             'extract.html',
             fileName=fileName,
             totalPage=total_page,
-            detected_areas=detected_areas[fileName]
+            detected_areas=detected_areas[fileName],
+            page=page
         )
 
     else:
