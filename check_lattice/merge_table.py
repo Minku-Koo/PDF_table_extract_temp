@@ -20,7 +20,6 @@ def __calc_row_value(horizontal_seg, before_table, now_table, table=True):
        boolean : True - merge / False - not merge
     """
     
-    horizontal_seg
     result = [[], []]
     for hs in horizontal_seg:
         h_y_value = hs[1] # line y coordinate
