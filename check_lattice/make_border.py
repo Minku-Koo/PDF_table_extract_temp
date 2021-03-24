@@ -7,7 +7,7 @@
 
 # if table has no outside border
 # this function can make virtual border line around table
-def addOutline(direction, mask, contours, line_size = 2):
+def addOutline(direction, mask, contours, line_size = 1):
     """
     Parameters
     ----------
