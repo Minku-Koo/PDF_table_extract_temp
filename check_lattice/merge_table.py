@@ -6,17 +6,32 @@
 # update : 20200324
 # minku Koo
 """
-def calc_row_value(horizontal_seg, before_table, now_table, table=True):
+
+# calculate table row value > merge or not
+def __calc_row_value(horizontal_seg, before_table, now_table, table=True):
+    """
+    Parameters
+        horizontal_seg <tuple in list> : horizontal line position
+        before_table <list> : [ before table coordinate <tuple>, table or line <boolean> ]
+        now_table <list> : [ now table coordinate <tuple>, table or line <boolean> ]
+        table <boolean> : is table or line, table is true (default = True)
+    
+    returns
+       boolean : True - merge / False - not merge
+    """
+    
     horizontal_seg
     result = [[], []]
     for hs in horizontal_seg:
         h_y_value = hs[1] # line y coordinate
         h_x_value = hs[0]
+        
         y_value = before_table[0][1] # table 1 y coordinate
         x_value =  before_table[0][0]
         if y_value <= h_y_value <= y_value + before_table[0][-1] \
             and x_value <= h_x_value <= x_value + before_table[0][2]:
             result[0].append( h_y_value )
+            
         y_value = now_table[0][1] # table 2 y coordinate
         x_value =  now_table[0][0]
         if y_value <= h_y_value <= y_value + now_table[0][-1] \
@@ -27,18 +42,18 @@ def calc_row_value(horizontal_seg, before_table, now_table, table=True):
     result[1] = sorted(result[1], reverse=True)
     
     row_value1 = min([result[0][x-1] - result[0][x] for x in range(1, len(result[0]))]) 
-    if table:
+    if table: # table
         row_value2 = min([result[1][x-1] - result[1][x] for x in range(1, len(result[1]))]) 
         row_value =  min( row_value1, row_value2 )
-    else:
+    else: # line
         row_value =  row_value1
-
+    
     top_value = before_table[0][1] + before_table[0][-1]
     bottom_value = now_table[0][1]
     table_by_table = bottom_value - top_value
     
-    if table_by_table > row_value: return False
-    return True
+    if table_by_table > row_value: return False # not merge
+    return True # merge
     
     
 #  find Tables that require merging on page
@@ -97,7 +112,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         # kind of table check
         # 1. table - line
         if before_table[1] and now_table[1]==False:
-            if calc_row_value(horizontal_segments, before_table, now_table, table=False) :
+            if __calc_row_value(horizontal_segments, before_table, now_table, table=False) :
                 sameTable = [ before_table[0], now_table[0] ]
             else:
                 sameTable = []
@@ -147,7 +162,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             if not isTable: continue
             # 4 : check interval between tables
             
-            if calc_row_value(horizontal_segments, before_table, now_table) :
+            if __calc_row_value(horizontal_segments, before_table, now_table) :
                 sameTable.extend( [ before_table[0], now_table[0] ] )
                 
             else:
