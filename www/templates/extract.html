@@ -20,6 +20,41 @@
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <!--  -->
 
+
+        <!-- JSpreadSheet -->
+        <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+        <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" />
+        
+        <script src="https://jsuites.net/v4/jsuites.js"></script>
+        <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
+
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jexcel/2.1.0/css/jquery.jexcel.min.css" type="text/css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jexcel/2.1.0/css/jquery.jdropdown.min.css" type="text/css" />
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" type="text/css" />
+
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Material+Icons" />
+        <!--  -->
+
+
+
+        <!-- JExcel -->
+        <!-- <link rel="stylesheet" href="{{url_for('static',filename='ce-master/dist/jexcel.css')}}" />
+        <script src="{{url_for('static',filename='ce-master/dist/index.js')}}"></script>
+        <script src="{{url_for('static',filename='ce-master/src/js/jexcel.core.js')}}"></script>
+        <script src="{{url_for('static',filename='ce-master/src/js/jexcel.extensions.js')}}"></script>
+        <script src="{{url_for('static',filename='ce-master/src/js/jexcel.formulars.js')}}"></script> -->
+        <!--  -->
+
+
+        <!-- X-SpreadSheet -->
+        <link rel="stylesheet" href="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.css">
+        <script src="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.js"></script>
+        <!--  -->
+
+
         
 	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
         
@@ -87,6 +122,11 @@
                     page = String(this_page);
                     set_select_areas( detected_areas[page] );
                 }
+
+                $("#table_printer").html('');
+            }
+            function sum(total, num) {
+               return total + num;
             }
 
 			$(document).ready(function () {
@@ -172,8 +212,96 @@
                             success: function (data) {
                                 var html = data.html;
                                 var bboxs = data.bboxs;
+                                var jsons = data.jsons;
+                                var csvs = data.csvs;
+                                var col_width = data.col_width;
                                 
-                                $('#table_printer').html(html);
+                                // $('#table_printer').html(html);
+
+                                for(i=0 ; i<csvs.length ; i++){
+                                    var div = document.createElement('div');
+                                    document.getElementById('table_printer').appendChild(div);
+
+                                    table = jspreadsheet(div, {
+                                        csv: "/static/job_pdf/{{fileName}}/page-"+this_page+"-table-"+(i+1)+".csv",
+                                        // columns:csvs[i],
+                                        colWidths: csvs[i],
+                                        rowResize: true,
+                                        columnResize: true,
+                                        toolbar:[
+                                            {
+                                                type: 'i',
+                                                content: 'undo',
+                                                onclick: function() {
+                                                    table.undo();
+                                                }
+                                            },
+                                            {
+                                                type: 'i',
+                                                content: 'redo',
+                                                onclick: function() {
+                                                    table.redo();
+                                                }
+                                            },
+                                            {
+                                                type: 'i',
+                                                content: 'save',
+                                                onclick: function () {
+                                                    table.download();
+                                                }
+                                            },
+                                            {
+                                                type: 'select',
+                                                k: 'font-family',
+                                                v: ['Arial','Verdana']
+                                            },
+                                            {
+                                                type: 'select',
+                                                k: 'font-size',
+                                                v: ['9px','10px','11px','12px','13px','14px','15px','16px','17px','18px','19px','20px']
+                                            },
+                                            {
+                                                type: 'i',
+                                                content: 'format_align_left',
+                                                k: 'text-align',
+                                                v: 'left'
+                                            },
+                                            {
+                                                type:'i',
+                                                content:'format_align_center',
+                                                k:'text-align',
+                                                v:'center'
+                                            },
+                                            {
+                                                type: 'i',
+                                                content: 'format_align_right', 
+                                                k: 'text-align',
+                                                v: 'right'
+                                            },
+                                            {
+                                                type: 'i',
+                                                content: 'format_bold',
+                                                k: 'font-weight',
+                                                v: 'bold'
+                                            },
+                                            {
+                                                type: 'color',
+                                                content: 'format_color_text',
+                                                k: 'color'
+                                            },
+                                            {
+                                                type: 'color',
+                                                content: 'format_color_fill',
+                                                k: 'background-color'
+                                            },
+                                        ],
+                                    });
+
+
+                                    // x_spreadsheet(div);
+
+                                }
+
                                 if(bboxs != 0){
                                     bboxs = bboxs.split(";");
                                     
@@ -213,9 +341,7 @@
 
 				$('img#pageImg').selectAreas({
                     width: window.innerWidth / 3.84
-				});
-
-                setTimeout(function(){
+				}).load(function(){
                     var imageWidth = $('#pageImg').width();
                     var imageHeight = $('#pageImg').height();
 
@@ -226,7 +352,7 @@
                         page = String(this_page);
                         set_select_areas( detected_areas[page] );
                     }
-                }, 500);
+                });
 
 
 				$('#btnView').click(function () {

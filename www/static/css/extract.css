@@ -120,9 +120,14 @@ div.image-decorator {
     cursor: pointer;
 }
 
-
 #table_printer table{
-    float: left;
-    border-collapse: collapse;
-    margin-top: 15px;
+    /* float: left; */
+    /* border-collapse: collapse; */
+    /* margin-top: 15px; */
+	width: fit-content;
+}
+
+#table_printer > div{
+	border: 1px solid green;
+	margin-bottom: 10px;
 }

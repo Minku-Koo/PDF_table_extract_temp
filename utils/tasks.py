@@ -78,52 +78,16 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             null.close()
             #################
 
-
-
-            # filenames[page] = filename
-            # filepaths[page] = filepath
-            # imagenames[page] = imagename
-            # imagepaths[page] = imagepath
-
             filedims[page] = get_file_dim(filepath)
             imagedims[page] = get_image_dim(imagepath)
-
-            # lattice_areas, stream_areas = (None for i in range(2))
-            # lattice
-            # parser = Lattice()
-            # tables = parser.extract_tables(filepath)
-            # if len(tables):
-            #     lattice_areas = []
-            #     for table in tables:
-            #         x1, y1, x2, y2 = table._bbox
-            #         lattice_areas.append((x1, y2, x2, y1))
-
-            # detected_areas[page] = {"lattice": lattice_areas, "stream": stream_areas}
             
-            lattice_areas = None
             # lattice
-            parser = Lattice2(line_scale=30)
+            print(f'이거 해본다 : {filepath}')
+            parser = Lattice2(line_scale=40)
             tables = parser.extract_tables(filepath)
-            # if len(tables):
-            #     lattice_areas = []
-            #     for table in tables:
-            #         x1, y1, x2, y2 = table._bbox
-            #         lattice_areas.append((x1, y2, x2, y1))
+            print('이거 성공했누')
 
-            # detected_areas[page] = {"lattice": lattice_areas}
             detected_areas[page] = tables
-
-
-        # file.extract_pages = json.dumps(extract_pages)
-        # file.total_pages = total_pages
-        # file.has_image = True
-        # file.filenames = json.dumps(filenames)
-        # file.filepaths = json.dumps(filepaths)
-        # file.imagenames = json.dumps(imagenames)
-        # file.imagepaths = json.dumps(imagepaths)
-        # file.filedims = json.dumps(filedims)
-        # file.imagedims = json.dumps(imagedims)
-        # file.detected_areas = json.dumps(detected_areas)
         return detected_areas
     except Exception as e:
         logging.exception(e)
@@ -217,7 +181,7 @@ def get_image_dim(imagepath):
     image = cv2.imread(imagepath)
     return [image.shape[1], image.shape[0]]
 
-
+'''
 
 def extract():
     try:
@@ -270,3 +234,4 @@ def extract():
         session.close()
     except Exception as e:
         logging.exception(e)
+'''
