@@ -24,13 +24,13 @@ def calc_row_value(horizontal_seg, before_table, now_table, table=True):
             result[1].append( h_y_value )
     
     # sort
-    print("before", before_table)
-    print("now_table", now_table)
+    # print("before", before_table)
+    # print("now_table", now_table)
     result[0] = sorted(result[0], reverse=True)
     result[1] = sorted(result[1], reverse=True)
     
     # result[0], result[1] = list( set(result[0]) ), list( set(result[1]) )
-    print(">>>", result)
+    # print(">>>", result)
     row_value1 = min([result[0][x-1] - result[0][x] for x in range(1, len(result[0]))]) 
     if table:
         row_value2 = min([result[1][x-1] - result[1][x] for x in range(1, len(result[1]))]) 
@@ -44,8 +44,8 @@ def calc_row_value(horizontal_seg, before_table, now_table, table=True):
     bottom_value = now_table[0][1]
     table_by_table = bottom_value - top_value
     
-    print("row_value",row_value )
-    print("table_by_table", table_by_table)
+    # print("row_value",row_value )
+    # print("table_by_table", table_by_table)
     
     if table_by_table > row_value: return False
     return True
@@ -73,7 +73,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
     
     isTable = True # table or line
     tables = {} # detected table list / key: table index, value : [ table contours, isTable ]
-    print("merge contours", contours)
+    # print("merge contours", contours)
     
     
     for index, table in enumerate(contours):
@@ -83,18 +83,20 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
             continue
             
         if not isTable: # if not table, line
+            
             #  condition 1 : is same width?
             if contours[index-1][2] != table[2]: continue
             #  condition 2 : is same x coordinate?
             if contours[index-1][0] != table[0]: continue
-        
+            
+            
         tables[index] = [table , isTable]
         
     isTable = False # table or line
     sameTable = [] # this list append same table
     
     if tables == {} : return []
-    
+    # print("tables", tables)
     for index in range(1, max(tables.keys())+1):
         # if not continuity
         if index not in tables.keys(): 
@@ -107,17 +109,21 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         # kind of table check
         # 1. table - line
         if before_table[1] and now_table[1]==False:
-            
+            # print("table and line:", now_table)
             if calc_row_value(horizontal_segments, before_table, now_table, table=False) :
                 sameTable = [ before_table[0], now_table[0] ]
-            
-            
+            else:
+                sameTable = []
+                continue
             
         
         # 2. line - table
         elif before_table[1]==False and now_table[1]:
+            # print("line and table>>>>", now_table)
+            
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
+                
             else:
                 sameTable.append( now_table[0] )
             result.append( sameTable )
@@ -125,6 +131,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         
         # 3. line - line
         elif before_table[1]==False and now_table[1]==False:
+            # print("line and line>>>>", now_table)
             if sameTable == []:
                 sameTable = [ before_table[0], now_table[0] ]
             else:
@@ -133,7 +140,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         # 4. table - table
         else:
             # condition check
-            print("now_table", now_table)
+            # print("table and table:", now_table)
             # 1 : is same width?
             if before_table[0][2] != now_table[0][2]: continue
             # 2 : is same x coordinate?
@@ -194,11 +201,12 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
                 
             else:
                 #sameTable.extend( [ before_table[0], now_table[0] ] )
+                sameTable = []
                 continue
                 
             result.append( sameTable )
             sameTable = []
-    print("result", result)
+    # print("result", result)
     return result
     
 # add virture vertical line on merge table

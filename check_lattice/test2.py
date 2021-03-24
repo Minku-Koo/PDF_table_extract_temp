@@ -27,8 +27,11 @@ from make_border import addOutline
 
 def show_plot(title, threshold):
     # resize_img = cv2.resize(threshold, (500, 900))
-    plt.imshow(threshold)
-    plt.savefig("test-result/"+title+'.png', dpi=400)
+    out = threshold.copy()
+    out = 255 - out
+    plt.imshow(out)
+    # plt.imshow(threshold)
+    plt.savefig("test-result/"+title+'-.png', dpi=400)
     plt.show()
 
 dirpath = "./test-photo/"
@@ -36,7 +39,7 @@ dirpath = "./test-photo/"
 imgname = "page-2"
 # imgname = "short"
 imgname = "border"
-imgname = "mt2"
+imgname = "mt3"
 
 imagename = dirpath+imgname+".png"
 process_background = False
