@@ -180,7 +180,7 @@ def addVerticalLine(vertical_mask, merge_table, size=1):
     Parameters
         vertical_mask <nd.array> : vertical line threshold
         merge_table <tuple in list> : Tables that require merging
-        size <int> : line size
+        size <int> : line size <default = 1>
     
     returns
         vertical_mask <nd.array> : added vertical line on threshold
