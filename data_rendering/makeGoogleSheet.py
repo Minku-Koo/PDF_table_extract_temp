@@ -5,7 +5,7 @@ import pandas as pd
 from gspread_formatting import *
 import os
 
-def make_google_sheet(header=None, email=None, **kwargs):
+def make_google_sheet(tables, header=None, email=None, **kwargs):
     '''
     sheet_name : sheet name
     header : Bold text A or 1 1
