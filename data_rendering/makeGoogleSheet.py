@@ -30,8 +30,6 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
     i = 0
     ws_list = []
     
-    #doc.add_worksheet(title="Temp",rows="1", cols="1")
-
     batch = batch_updater(doc)
     print(spreadsheet_url)
     while 1:
@@ -83,7 +81,7 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
                 cells.append(Cell(row=i+1, col=j+1, value=np_table[i][j]))
         ws.update_cells(cells)
         ran = ['A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0])]
-        batch.format_cell_range(ws,[(ran[0],fmt_top), (ran[1],fmt_bottom), (ran[2],fmt_left), (ran[3],fmt_right)])
+        #format_cell_range(ws,[(ran[0],fmt_top), (ran[1],fmt_bottom), (ran[2],fmt_left), (ran[3],fmt_right)])
         batch.format_cell_range(ws, ran[0],fmt_top)
         batch.format_cell_range(ws, ran[1],fmt_bottom)
         batch.format_cell_range(ws, ran[2],fmt_left)
@@ -103,4 +101,5 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
             i=i+1
         except:
             break
-    return [spreadsheet_url+l for l in ws_list]
+    return [spreadsheet_url+str(l) for l in ws_list]
+
