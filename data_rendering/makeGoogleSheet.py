@@ -12,7 +12,7 @@ def make_google_sheet(header=None, email=None, **kwargs):
     '''    
 
     json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
-                
+    sheet_name = ""
     spreadsheet_url = 'https://docs.google.com/spreadsheets/d/13g5-I80S4LV3aV-w6Mo6LkjrGTJoSrxBxG6BSqyMS00/edit#gid='
 
     print(kwargs)
@@ -30,7 +30,7 @@ def make_google_sheet(header=None, email=None, **kwargs):
     i = 0
     ws_list = []
     
-    doc.add_worksheet(title="Temp",rows="1", cols="1")
+    #doc.add_worksheet(title="Temp",rows="1", cols="1")
 
     batch = batch_updater(doc)
     print(spreadsheet_url)
@@ -44,14 +44,15 @@ def make_google_sheet(header=None, email=None, **kwargs):
             break
     count = 0
     for i in range(len(tables)):
+        sheet_name = str(i)
         try:
-            result = doc.add_worksheet(title=str(i), rows="100", cols="100")
-            ws = doc.worksheet(str(i))
+            result = doc.add_worksheet(title=sheet_name, rows="100", cols="100")
+            ws = doc.worksheet(sheet_name)
             np_table = tables[i].to_numpy()
         except:
-            doc.del_worksheet(doc.worksheet(str(i)))
-            result = doc.add_worksheet(title=str(i), rows="100", cols="100")
-            ws = doc.worksheet(str(i))
+            #doc.del_worksheet(doc.worksheet(str(i)))
+            result = doc.add_worksheet(title=sheet_name+"-", rows="100", cols="100")
+            ws = doc.worksheet(sheet_name)
             count = count + 1
             np_table = tables[i].to_numpy()
             if header != None:
@@ -88,10 +89,10 @@ def make_google_sheet(header=None, email=None, **kwargs):
         batch.format_cell_range(ws, ran[2],fmt_left)
         batch.format_cell_range(ws, ran[3],fmt_right)
         batch.execute()
-    doc.del_worksheet(doc.get_worksheet(0))
-    print(len(ws_list), count)
-    for i in range(len(ws_list)-count):
-        doc.del_worksheet(doc.get_worksheet(0))
+    # doc.del_worksheet(doc.get_worksheet(0))
+    # print(len(ws_list), count)
+    # for i in range(len(ws_list)-count):
+    #     doc.del_worksheet(doc.get_worksheet(0))
 
     ws_list = []
     while 1:
