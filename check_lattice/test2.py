@@ -39,7 +39,7 @@ dirpath = "./test-photo/"
 imgname = "page-2"
 # imgname = "short"
 imgname = "border"
-imgname = "mt3"
+imgname = "err"
 
 imagename = dirpath+imgname+".png"
 process_background = False
