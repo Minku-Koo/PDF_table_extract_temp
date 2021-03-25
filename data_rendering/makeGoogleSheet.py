@@ -93,6 +93,7 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
     #     doc.del_worksheet(doc.get_worksheet(0))
 
     ws_list = []
+    i=0
     while 1:
         try:
             if doc.get_worksheet(i) == None:
