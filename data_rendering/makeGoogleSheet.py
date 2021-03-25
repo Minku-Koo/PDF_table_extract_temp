@@ -31,7 +31,12 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
     ws_list = []
     
     batch = batch_updater(doc)
-    print(spreadsheet_url)
+    
+    try:
+        doc.add_worksheet(title="Temp", rows="1", cols="1")
+    except:
+        print("already exist Temp")
+    
     while 1:
         try:
             if doc.get_worksheet(i) == None:
@@ -87,10 +92,7 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
         batch.format_cell_range(ws, ran[2],fmt_left)
         batch.format_cell_range(ws, ran[3],fmt_right)
         batch.execute()
-    # doc.del_worksheet(doc.get_worksheet(0))
-    # print(len(ws_list), count)
-    # for i in range(len(ws_list)-count):
-    #     doc.del_worksheet(doc.get_worksheet(0))
+    doc.del_worksheet(doc.get_worksheet(0))
 
     ws_list = []
     i=0
