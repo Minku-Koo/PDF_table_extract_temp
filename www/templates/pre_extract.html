@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+        <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+        <title>PDF Table Select Areas</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/extract.css')}}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+		<!--[if lte IE 8]><link href="../resources/jquery.selectareas.ie8.css" media="screen" rel="stylesheet" type="text/css" /> <![endif]-->
+        <script type="text/javascript" src = "{{url_for('static',filename='js/jquery-1.11.3.min.js')}}"></script>
+
+        
+        <!-- JQUERY Select Areas plug-in -->
+        <script type="text/javascript" src = "{{url_for('static',filename='js/jquery.selectareas.js')}}"></script>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='resources/jquery.selectareas.css')}}">
+        <!--  -->
+
+        <!-- JQUERY Tool tips plug-in -->
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <!--  -->
+
+        
+	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
+        
+        
+		<script type="text/javascript">
+            var this_page = 1;
+            var detected_areas = JSON.parse( '{{detected_areas | tojson | safe}}' );
+
+            $( document ).tooltip();
+            
+                
+
+            // 테이블 선택 영역 표시 함수
+            function set_select_areas(bboxs){
+                if(bboxs != 0){
+                    bboxs = bboxs.split(";");
+                    
+                    $("#pageImg").selectAreas('reset');
+                    
+                    arrs = [];
+                    for(i=0 ; i<bboxs.length ; i++){
+                        var arr = bboxs[i].split(',');
+
+                        fileDimsX = Number(arr[4])
+                        fileDimsY = Number(arr[5])
+                        const imageWidth = $("img#pageImg").width();
+                        const imageHeight = $("img#pageImg").height();
+
+                        scalingFactorX = fileDimsX / imageWidth;
+                        scalingFactorY = fileDimsY / imageHeight;
+
+                        arrs.push({
+                            x: Number(arr[0] / scalingFactorX),
+                            y: Number(arr[1]/ scalingFactorY),
+                            width: Number(arr[2]/ scalingFactorX),
+                            height: Number(arr[3]/ scalingFactorY),
+                        });
+                    }
+                    
+                    $("#pageImg").selectAreas('add', arrs);
+                }
+            }
+
+
+            // 페이지 이동 함수 (pre_page는 현재 페이지, page는 이동할 페이지)
+            function move_page(pre_page, page){
+                this_page = page;
+
+                // 스크롤바를 현재 선택된 썸네일로 이동시키고 중간에 위치하게함
+                document.getElementById('thumb_page_'+page).scrollIntoView({
+                    behavior: 'auto',
+                    block: 'center',
+                    inline: 'center'
+                });
+
+                // thumb_img_select 클래스가 적용된 썸네일은 빨간 테두리가 표시됨 (현재 선택된 페이지라는 뜻)
+                $('#thumb_page_'+pre_page).removeClass('thumb_img_select');
+                $('#thumb_page_'+page).addClass('thumb_img_select');
+
+                $('img#pageImg').attr('src', "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-"+page+".png");
+                
+                    
+                if( detected_areas.hasOwnProperty(String(page)) ){
+                    $("#pageImg").selectAreas('reset');
+                    page = String(this_page);
+                    set_select_areas( detected_areas[page] );
+                }
+            }
+
+			$(document).ready(function () {
+
+                // 추출할 메인 이미지 교체
+                $('img#pageImg').attr("src", "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-"+this_page+".png");
+
+                $('.arrow').click(function () {
+					direction = $(this).text();
+                    pre_page = this_page;
+
+                    if (direction == "◀"){
+                        this_page = Number(this_page)-1;
+                        if(this_page < 1){
+                            this_page = 1;
+                        }
+                    }
+                    else{
+                        this_page = Number(this_page)+1;
+                    }
+                    move_page(pre_page, this_page);
+				});
+            
+                $('#get_line_size').click(function () {
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
+                    
+                    if (selectedAreas.length > 0) {
+                        const imageWidth = $('#pageImg').width();
+                        const imageHeight = $('#pageImg').height();
+                    
+                        var table_option = $("input[name='optradio']:checked").val();
+                        var jsons = {};
+                        
+                        for(i=0 ; i<selectedAreas.length ; i++){
+                            selectedAreas[i]['imageWidth'] = imageWidth;
+                            selectedAreas[i]['imageHeight'] = imageHeight;
+                            jsons[i] = JSON.stringify(selectedAreas[i]);
+                        }
+                        jsons = JSON.stringify(jsons);
+
+                        $.ajax({
+                            url: '/getLineScale',
+                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page},
+                            dataType:'json',
+                            type: 'POST',
+                            success: function (data) {
+                                $("#line_scale").val(data.line_scale);
+                            },
+                            error: function (error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                    else{
+                        alert("먼저 영역을 지정해주세요.");
+                    }
+				});
+                
+                $('#extract').click(function () {
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
+
+                    console.log(selectedAreas);
+                    
+                    if (selectedAreas.length > 0) {
+                        const imageWidth = $('#pageImg').width();
+                        const imageHeight = $('#pageImg').height();
+                    
+                        var table_option = $("input[name='optradio']:checked").val();
+                        var jsons = {};
+                        
+                        for(i=0 ; i<selectedAreas.length ; i++){
+                            selectedAreas[i]['imageWidth'] = imageWidth;
+                            selectedAreas[i]['imageHeight'] = imageHeight;
+                            jsons[i] = JSON.stringify(selectedAreas[i]);
+                        }
+                        jsons = JSON.stringify(jsons);
+                        
+                         $.ajax({
+                            url: '/doExtract',
+                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page, "table_option":table_option, "line_scale":$("#line_scale").val()},
+                            dataType:'json',
+                            type: 'POST',
+                            success: function (data) {
+                                var html = data.html;
+                                var bboxs = data.bboxs;
+                                
+                                $('#table_printer').html(html);
+                                if(bboxs != 0){
+                                    bboxs = bboxs.split(";");
+                                    
+                                    $("#pageImg").selectAreas('reset');
+                                    
+                                    arrs = [];
+                                    for(i=0 ; i<bboxs.length ; i++){
+                                        var arr = bboxs[i].split(',');
+                                        
+                                        arrs.push({
+                                            x: Number(arr[0]),
+                                            y: Number(arr[1]),
+                                            width: Number(arr[2]),
+                                            height: Number(arr[3]),
+                                        });
+                                    }
+                                    
+                                    $("#pageImg").selectAreas('add', arrs);
+                                }
+                            },
+                            error: function (error) {
+                              console.error(error);
+                            }
+                         });
+                    }
+				});
+
+
+                $('#auto_detect').click(function(){
+                    if( detected_areas.hasOwnProperty(String(page)) ){
+                        $("#pageImg").selectAreas('reset');
+                        page = String(this_page);
+                        set_select_areas( detected_areas[page] );
+                    }
+                });
+
+
+				$('img#pageImg').selectAreas({
+                    width: window.innerWidth / 3.84
+				});
+
+                setTimeout(function(){
+                    var imageWidth = $('#pageImg').width();
+                    var imageHeight = $('#pageImg').height();
+
+                    $('.image-decorator div, .image-decorator img').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
+                    // $('.image-decorator div').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
+                    
+                    if( detected_areas.hasOwnProperty(String(this_page)) ){
+                        page = String(this_page);
+                        set_select_areas( detected_areas[page] );
+                    }
+                }, 500);
+
+
+				$('#btnView').click(function () {
+					var selectedAreas = $('img#pageImg').selectAreas('areas');
+					displayAreas(selectedAreas);
+				});
+				$('#btnViewRel').click(function () {
+					var areas = $('img#pageImg').selectAreas('relativeAreas');
+					displayAreas(areas);
+				});
+				$('#btnReset').click(function () {
+					output("reset")
+					$('img#pageImg').selectAreas('reset');
+				});
+				$('#btnDestroy').click(function () {
+					$('img#pageImg').selectAreas('destroy');
+
+					output("destroyed")
+					$('.actionOn').attr("disabled", "disabled");
+					$('.actionOff').removeAttr("disabled")
+				});
+				$('#btnCreate').attr("disabled", "disabled").click(function () {
+					$('img#pageImg').selectAreas({
+						minSize: [10, 10],
+						onChanged : debugQtyAreas,
+						width: 500,
+					});
+
+					output("created")
+					$('.actionOff').attr("disabled", "disabled");
+					$('.actionOn').removeAttr("disabled")
+				});
+				$('#btnNew').click(function () {
+					var areaOptions = {
+						x: Math.floor((Math.random() * 200)),
+						y: Math.floor((Math.random() * 200)),
+						width: Math.floor((Math.random() * 100)) + 50,
+						height: Math.floor((Math.random() * 100)) + 20,
+					};
+					output("Add a new area: " + areaToString(areaOptions))
+					$('img#pageImg').selectAreas('add', areaOptions);
+				});
+				$('#btnNews').click(function () {
+					var areaOption1 = {
+						x: Math.floor((Math.random() * 200)),
+						y: Math.floor((Math.random() * 200)),
+						width: Math.floor((Math.random() * 100)) + 50,
+						height: Math.floor((Math.random() * 100)) + 20,
+					}, areaOption2 = {
+						x: areaOption1.x + areaOption1.width + 10,
+						y: areaOption1.y + areaOption1.height - 20,
+						width: 50,
+						height: 20,
+					};
+					output("Add a new area: " + areaToString(areaOption1) + " and " + areaToString(areaOption2))
+					$('img#pageImg').selectAreas('add', [areaOption1, areaOption2]);
+				});
+			});
+
+			var selectionExists;
+
+			function areaToString (area) {
+				return (typeof area.id === "undefined" ? "" : (area.id + ": ")) + area.x + ':' + area.y  + ' ' + area.width + 'x' + area.height + '<br />'
+			}
+
+			function output (text) {
+				$('#output').html(text);
+			}
+
+			// Log the quantity of selections
+			function debugQtyAreas (event, id, areas) {
+				// console.log(areas.length + " areas", arguments);
+			};
+
+			// Display areas coordinates in a div
+			function displayAreas (areas) {
+				var text = "";
+				$.each(areas, function (id, area) {
+					text += areaToString(area);
+				});
+				output(text);
+			};
+
+		</script>
+	</head>
+
+	<body>
+        <header>
+            <ul>
+                <li onclick='location.href="/"'>HOME</li>
+                <li>BLAH BLAH</li>
+                <li>BLAH BLAH</li>
+                <!-- <li style='font-size: 24px;'><b>{{fileName}}.pdf</b>&nbsp;&nbsp;&nbsp; p{{page}}</li> -->
+            </ul>
+        </header>
+        <div id='page_list_box'>
+            {% for idx in range(1, totalPage+1) %}
+                <div class='thumb_page'>
+                    <center>
+                        {% if idx == 1 %}
+                        <img
+                            class='thumb_img thumb_img_select'
+                            src="{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{idx}}-thumb.png"
+                            onclick="
+                                    move_page(this_page, '{{idx}}');
+                                "
+                            id="thumb_page_{{idx}}">
+
+                        {% else %}
+                        <img
+                            class='thumb_img'
+                            src="{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-{{idx}}-thumb.png"
+                            onclick="
+                                    move_page(this_page, '{{idx}}');
+                                "
+                            id="thumb_page_{{idx}}">
+                        {% endif %}
+                        <br>
+                        <span>{{idx}}</span>
+                        <br><br>
+                    </center>
+                </div>
+            {% endfor %}
+        </div>
+
+       <table id='article_table'>
+           <tr>
+                <td>
+                    <div id="wrapper">
+
+                        <input id='auto_detect' type='button' value='Auto Detected'>
+                        <div style='float:right'>
+                            <label title='Line Scale is the smallest length to detect PDF tables border lines'>
+                                ⯑ Line Scale&nbsp;<input style="width: 40px" type='text' id="line_scale" value="40">
+                            </label>
+                            
+                            <label>
+                                <input type='button' id="get_line_size" value="get Line Size">
+                            </label>
+                        </div>
+
+                        <div class="image-decorator">
+                            <img alt="Image principale" id="pageImg"/>
+                        </div>
+                        
+                    <center>
+                        <span class="arrow">◀</span>
+                        <input type="text">
+                        <span class="arrow">▶</span>
+                    </center>
+                    </div>
+                </td>
+                
+                <td>
+                    <div style='position: absolute; top: 10%'>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" value="areas">table_areas
+                        </label>
+                        <br>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" value="regions" checked>table_regions
+                        </label>
+                    </div>
+
+                    <input type="button" id="extract" value="테이블 추출👉" style="font-size: 18px; cursor:pointer;"/>
+                </td>
+                
+                <td style="vertical-align: top">
+                    <h1>Table Result</h1>
+                    <div id='table_printer'></div>
+                </td>
+            </tr>
+       </table>
+	</body>
+</html>
