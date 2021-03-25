@@ -248,9 +248,8 @@ def doExtract_page():
                 # jsons.append( df.to_json(orient='records', force_ascii=False) )
 
                 cols, width_sum = getWidth(df)
-                csvs.append(cols)
-                col_width.append(width_sum)
-                # csvs.append( df.to_csv(index=False) )
+                col_width.append( cols )
+                csvs.append( df.to_csv(index=False) )
                 df.to_csv(f'{filepath}\\page-{page}-table-{idx}.csv', index=False)
 
                 
@@ -263,8 +262,6 @@ def doExtract_page():
 
             gs_url = make_google_sheet(gs)
 
-            print(f'ㅅㅂ : {gs_url}')
-
             # print(f'제이슨:{jsons}')
             # print(f'csv:{csvs}')
             
@@ -272,8 +269,8 @@ def doExtract_page():
             html = "<span>발견된 테이블 없음</span>"
             bboxs = 0
             
-        # return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'csvs':csvs, 'col_width':col_width, 'gs_url':gs_url})
-        return jsonify({'html':html, 'bboxs':bboxs, 'gs_url':gs_url})
+        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'col_width':col_width, 'csvs':csvs, 'gs_url':gs_url})
+        # return jsonify({'html':html, 'bboxs':bboxs, 'gs_url':gs_url})
 
 
 # 라인스케일 요청시 적절한 값 반환해주는 라우트

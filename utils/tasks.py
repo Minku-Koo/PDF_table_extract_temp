@@ -82,10 +82,8 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             imagedims[page] = get_image_dim(imagepath)
             
             # lattice
-            print(f'이거 해본다 : {filepath}')
             parser = Lattice2(line_scale=40)
             tables = parser.extract_tables(filepath)
-            print('이거 성공했누')
 
             detected_areas[page] = tables
         return detected_areas

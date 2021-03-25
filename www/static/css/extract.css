@@ -131,3 +131,9 @@ div.image-decorator {
 	border: 3px solid green;
 	margin-bottom: 10px;
 }
+#table_printer > iframe{
+	width: 700px;
+	height: 500px;
+	margin-left: 20px;
+	margin-bottom: 20px;
+}
