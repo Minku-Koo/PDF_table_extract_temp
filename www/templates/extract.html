@@ -188,7 +188,7 @@
                 $('#extract').click(function () {
 					var selectedAreas = $('img#pageImg').selectAreas('areas');
 
-                    console.log(selectedAreas);
+                    // console.log(selectedAreas);
                     
                     if (selectedAreas.length > 0) {
                         const imageWidth = $('#pageImg').width();
@@ -221,10 +221,16 @@
 
 
                                 var gs_url = data.gs_url;
+                                var iframe = null;
+                                console.log(gs_url);
 
                                 for(i=0 ; i<gs_url.length ; i++){
                                     url = gs_url[i];
-                                    console.log("유알엘 : ", url);
+                                    console.log(url);
+
+                                    iframe = document.createElement('iframe');
+                                    $(iframe).attr('src', url);
+                                    document.getElementById('table_printer').appendChild(iframe);
                                 }
 
 

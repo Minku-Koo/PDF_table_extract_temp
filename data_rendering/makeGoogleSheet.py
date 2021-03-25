@@ -48,8 +48,8 @@ def make_google_sheet(tables, header=None, email=None, **kwargs):
             ws = doc.worksheet(sheet_name)
             np_table = tables[i].to_numpy()
         except:
-            #doc.del_worksheet(doc.worksheet(str(i)))
-            result = doc.add_worksheet(title=sheet_name+"-", rows="100", cols="100")
+            doc.del_worksheet(doc.worksheet(str(i)))
+            result = doc.add_worksheet(title=sheet_name, rows="100", cols="100")
             ws = doc.worksheet(sheet_name)
             count = count + 1
             np_table = tables[i].to_numpy()

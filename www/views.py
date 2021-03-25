@@ -260,8 +260,10 @@ def doExtract_page():
             html = "<br>".join(html)
             bboxs = ";".join(bboxs)
 
-            
+
             gs_url = make_google_sheet(gs)
+
+            print(f'ㅅㅂ : {gs_url}')
 
             # print(f'제이슨:{jsons}')
             # print(f'csv:{csvs}')
@@ -270,7 +272,8 @@ def doExtract_page():
             html = "<span>발견된 테이블 없음</span>"
             bboxs = 0
             
-        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'csvs':csvs, 'col_width':col_width, 'gs_url':gs_url})
+        # return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'csvs':csvs, 'col_width':col_width, 'gs_url':gs_url})
+        return jsonify({'html':html, 'bboxs':bboxs, 'gs_url':gs_url})
 
 
 # 라인스케일 요청시 적절한 값 반환해주는 라우트
