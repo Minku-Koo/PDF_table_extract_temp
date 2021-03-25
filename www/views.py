@@ -26,6 +26,8 @@ from utils.tasks import split as task_split
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
 
+from data_rendering.makeGoogleSheet import make_google_sheet
+
 from PyPDF2 import PdfFileReader
 
 import cv2
@@ -137,9 +139,10 @@ def uploadPDF():
 
             # for page in [str(i) for i in range(1, total_page+1)]:
             # for page in range(1, total_page+1):
-            for page in result.keys():
-                if result.get(page) is None or result.get(page) == '':
-                    empty_pages.append(page)
+            
+            # for page in result.keys():
+            #     if result.get(page) is None or result.get(page) == '':
+            #         empty_pages.append(page)
 
             print('@'*50)
             print(empty_pages)
@@ -196,7 +199,7 @@ def extract_page():
             fileName=fileName,
             totalPage=total_page,
             detected_areas=detected_areas[fileName],
-            page=page
+            # page=page
         )
 
     else:
@@ -232,9 +235,14 @@ def doExtract_page():
             csvs = []
             col_width = []
             bboxs = []
+            gs = []
+
             for idx, table in enumerate(result, 1):
                 df = table.df
                 df.reset_index(drop=True, inplace=True)
+
+                gs.append(df)
+
                 html.append( df.to_html(index=False, header=False).replace('\\n', '<br>') )
                 # jsons.append( json.loads(df.to_json(orient='split', index=False, force_ascii=False) ) )
                 # jsons.append( df.to_json(orient='records', force_ascii=False) )
@@ -244,12 +252,16 @@ def doExtract_page():
                 col_width.append(width_sum)
                 # csvs.append( df.to_csv(index=False) )
                 df.to_csv(f'{filepath}\\page-{page}-table-{idx}.csv', index=False)
+
                 
                 bbox = table._bbox
                 bboxs.append( bbox_to_areas(v, bbox, page_file) )
                 
             html = "<br>".join(html)
             bboxs = ";".join(bboxs)
+
+            
+            gs_url = make_google_sheet(gs)
 
             # print(f'제이슨:{jsons}')
             # print(f'csv:{csvs}')
@@ -258,7 +270,7 @@ def doExtract_page():
             html = "<span>발견된 테이블 없음</span>"
             bboxs = 0
             
-        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'csvs':csvs, 'col_width':col_width})
+        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'csvs':csvs, 'col_width':col_width, 'gs_url':gs_url})
 
 
 # 라인스케일 요청시 적절한 값 반환해주는 라우트

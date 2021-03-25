@@ -216,7 +216,24 @@
                                 var csvs = data.csvs;
                                 var col_width = data.col_width;
                                 
+
+
+
+
+                                var gs_url = data.gs_url;
+
+                                for(i=0 ; i<gs_url.length ; i++){
+                                    url = gs_url[i];
+                                    console.log("유알엘 : ", url);
+                                }
+
+
+
+
+
+
                                 // $('#table_printer').html(html);
+                                /*
 
                                 for(i=0 ; i<csvs.length ; i++){
                                     var div = document.createElement('div');
@@ -301,6 +318,8 @@
                                     // x_spreadsheet(div);
 
                                 }
+
+                                */
 
                                 if(bboxs != 0){
                                     bboxs = bboxs.split(";");
