@@ -112,10 +112,10 @@ def uploadPDF():
     if success:
         # original pdf -> split 1, 2 .... n page pdf
         
-        # inputstream = open(filepath, "rb")
-        # infile = PdfFileReader(inputstream, strict=False)
-        # total_page = infile.getNumPages()
-        # inputstream.close()
+        inputstream = open(filepath, "rb")
+        infile = PdfFileReader(inputstream, strict=False)
+        total_page = infile.getNumPages()
+        inputstream.close()
         empty_pages = []
 
         result = task_split(filepath, file_page_path, split_progress)
@@ -140,13 +140,14 @@ def uploadPDF():
             # for page in [str(i) for i in range(1, total_page+1)]:
             # for page in range(1, total_page+1):
             
-            # for page in result.keys():
-            #     if result.get(page) is None or result.get(page) == '':
-            #         empty_pages.append(page)
+            for page in result.keys():
+                if result.get(page) is None or result.get(page) == '':
+                    empty_pages.append(page)
 
             print('@'*50)
             print(empty_pages)
-            print(f'length:{empty_pages}')
+            session['empty_pages'] = empty_pages
+            print(f'total length: {total_page}\tempty length:{len(empty_pages)}')
             print('@'*50)
             
         else:
@@ -199,6 +200,27 @@ def extract_page():
             fileName=fileName,
             totalPage=total_page,
             detected_areas=detected_areas[fileName],
+            # page=page
+        )
+
+    else:
+        return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
+
+
+# 추출할 pdf파일이 정해졌을때 추출을 진행하는 라우트 (Get 요청으로 pdf파일 명시)
+@views.route("/pre_extract_page", methods=['GET'])
+def pre_extract_page():
+    global detected_areas
+
+    fileName = request.args.get("fileName")
+
+    # if fileName is not None and page is not None:
+    if fileName is not None:
+
+        return render_template(
+            'pre_extract.html',
+            fileName=fileName,
+            empty_pages=session['empty_pages'],
             # page=page
         )
 

@@ -75,7 +75,6 @@
                     }
 
                     var dropZone = $('.zone'),
-                    // var dropZone = $('#dropZ'),
                         timeout = window.dropZoneTimeout;
                     if (!timeout) {
                         dropZone.addClass('in');
@@ -178,6 +177,7 @@
                                     success: function (data) {
                                         if(data.message == 'Files successfully uploaded'){
                                             location.href = '{{url_for("views.extract_page")}}'+'?fileName='+fileName.split('.')[0];
+                                            // location.href = '{{url_for("views.pre_extract_page")}}'+'?fileName='+fileName.split('.')[0];
                                         }
                                     },
                                     error: function (error) {
