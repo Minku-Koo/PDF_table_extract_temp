@@ -26,11 +26,8 @@
         
 		<script type="text/javascript">
             var this_page = 1;
-            var detected_areas = JSON.parse( '{{detected_areas | tojson | safe}}' );
 
             $( document ).tooltip();
-            
-                
 
             // 테이블 선택 영역 표시 함수
             function set_select_areas(bboxs){
@@ -90,6 +87,42 @@
             }
 
 			$(document).ready(function () {
+                function progress(){
+                    $(".background-grey").css("display", "block");
+                    $(".loading").css("display", "block");
+
+                    var percent = document.querySelector('.percent');
+                    var progress = document.querySelector('.progress2');
+                    var text = document.querySelector('.text');
+                    var count = 4;
+                    var per = 16;
+                    var loading = setInterval(getProgress, 500);
+
+                    function getProgress(){
+                        $.ajax({
+                            type: 'POST',
+                            url: '/getProgress',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            success: function (data) {
+                                animate(data);
+                            }
+                        });
+                    }
+
+                    function animate(per){
+                        if(count == 100 && per == 400){
+                            percent.classList.add("text-blink");
+                            text.style.display = "block";
+                            clearInterval(loading);
+                        }
+                        else{
+                            progress.style.width = per*4 + 'px';
+                            percent.textContent = per + '%';
+                        }
+                    }
+                }
 
                 // 추출할 메인 이미지 교체
                 $('img#pageImg').attr("src", "{{url_for('static', filename='job_pdf')}}/{{fileName}}/page-"+this_page+".png");
@@ -145,60 +178,28 @@
                     }
 				});
                 
-                $('#extract').click(function () {
-					var selectedAreas = $('img#pageImg').selectAreas('areas');
+                $('#re_extract').click(function () {
+                    progress();
+                    var fileName = "{{fileName}}";
 
-                    console.log(selectedAreas);
-                    
-                    if (selectedAreas.length > 0) {
-                        const imageWidth = $('#pageImg').width();
-                        const imageHeight = $('#pageImg').height();
-                    
-                        var table_option = $("input[name='optradio']:checked").val();
-                        var jsons = {};
-                        
-                        for(i=0 ; i<selectedAreas.length ; i++){
-                            selectedAreas[i]['imageWidth'] = imageWidth;
-                            selectedAreas[i]['imageHeight'] = imageHeight;
-                            jsons[i] = JSON.stringify(selectedAreas[i]);
-                        }
-                        jsons = JSON.stringify(jsons);
-                        
-                         $.ajax({
-                            url: '/doExtract',
-                            data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page, "table_option":table_option, "line_scale":$("#line_scale").val()},
-                            dataType:'json',
-                            type: 'POST',
-                            success: function (data) {
-                                var html = data.html;
-                                var bboxs = data.bboxs;
-                                
-                                $('#table_printer').html(html);
-                                if(bboxs != 0){
-                                    bboxs = bboxs.split(";");
-                                    
-                                    $("#pageImg").selectAreas('reset');
-                                    
-                                    arrs = [];
-                                    for(i=0 ; i<bboxs.length ; i++){
-                                        var arr = bboxs[i].split(',');
-                                        
-                                        arrs.push({
-                                            x: Number(arr[0]),
-                                            y: Number(arr[1]),
-                                            width: Number(arr[2]),
-                                            height: Number(arr[3]),
-                                        });
-                                    }
-                                    
-                                    $("#pageImg").selectAreas('add', arrs);
+                    $.ajax({
+                        type: 'POST',
+                        url: '/pre_extract',
+                        data: {"fileName":fileName, "line_scale":$("#line_scale").val()},
+                        success: function (data) {
+                            if(data.message == 'success'){
+                                if(confirm("line scale 검사 작업을 진행하시겠습니까?")){
+                                    location.href = '{{url_for("views.pre_extract_page")}}'+'?fileName='+fileName.split('.')[0];
                                 }
-                            },
-                            error: function (error) {
-                              console.error(error);
+                                else{
+                                    location.href = '{{url_for("views.extract_page")}}'+'?fileName='+fileName.split('.')[0];
+                                }
                             }
-                         });
-                    }
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        }
+                    });
 				});
 
 
@@ -209,24 +210,15 @@
                         set_select_areas( detected_areas[page] );
                     }
                 });
-
-
+                
 				$('img#pageImg').selectAreas({
                     width: window.innerWidth / 3.84
-				});
-
-                setTimeout(function(){
+				}).load(function(){
                     var imageWidth = $('#pageImg').width();
                     var imageHeight = $('#pageImg').height();
 
-                    $('.image-decorator div, .image-decorator img').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
-                    // $('.image-decorator div').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
-                    
-                    if( detected_areas.hasOwnProperty(String(this_page)) ){
-                        page = String(this_page);
-                        set_select_areas( detected_areas[page] );
-                    }
-                }, 500);
+                    var fitWidth = (imageWidth/imageHeight*100)*0.7+'vh';
+                });
 
 
 				$('#btnView').click(function () {
@@ -296,11 +288,6 @@
 				$('#output').html(text);
 			}
 
-			// Log the quantity of selections
-			function debugQtyAreas (event, id, areas) {
-				// console.log(areas.length + " areas", arguments);
-			};
-
 			// Display areas coordinates in a div
 			function displayAreas (areas) {
 				var text = "";
@@ -314,6 +301,15 @@
 	</head>
 
 	<body>
+        <div class="background-grey" style="display:none"></div>
+        <div class="loading" style="display:none">
+            <center><span style='font-size: 50px; color: white;'>Processing...</span></center>
+            <div class="percent">0%</div>
+            <label class="text">Completed!</label>
+            <div class="progress-bar2">
+                <div class="progress2"></div>
+            </div>
+        </div>
         <header>
             <ul>
                 <li onclick='location.href="/"'>HOME</li>
@@ -373,30 +369,15 @@
                         </div>
                         
                     <center>
-                        <span class="arrow">◀</span>
+                        <!-- <span class="arrow">◀</span>
                         <input type="text">
-                        <span class="arrow">▶</span>
+                        <span class="arrow">▶</span> -->
                     </center>
                     </div>
                 </td>
                 
                 <td>
-                    <div style='position: absolute; top: 10%'>
-                        <label class="radio-inline">
-                            <input type="radio" name="optradio" value="areas">table_areas
-                        </label>
-                        <br>
-                        <label class="radio-inline">
-                            <input type="radio" name="optradio" value="regions" checked>table_regions
-                        </label>
-                    </div>
-
-                    <input type="button" id="extract" value="테이블 추출👉" style="font-size: 18px; cursor:pointer;"/>
-                </td>
-                
-                <td style="vertical-align: top">
-                    <h1>Table Result</h1>
-                    <div id='table_printer'></div>
+                    <input type="button" id="re_extract" value="재추출" style="font-size: 18px; cursor:pointer;"/>
                 </td>
             </tr>
        </table>

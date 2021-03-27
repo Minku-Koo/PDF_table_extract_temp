@@ -94,8 +94,10 @@ table {
 div#wrapper {
 	position: relative;
 	margin: 0 auto;
+	width: 520px;
 	height: 90%;
-	max-width: 51vh;
+	/* max-width: 55vh; */
+	/* width: fit-content; */
 	font-size: 18px;
 }
 
@@ -136,4 +138,73 @@ div.image-decorator {
 	height: 500px;
 	margin-left: 20px;
 	margin-bottom: 20px;
+}
+
+
+
+/* progress */
+.background-grey{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #151515;
+    opacity: 80%;
+    z-index: 99;
+}
+.loading{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    box-shadow: 10px 10px 10px 20grey;
+    border-radius: 30px;
+
+    font-family: 'Roboto';
+    z-index: 999;
+}
+.percent{
+  color: #D0D9D7;
+  font-size: 60px;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 8px 8px 8px rgba(0, 0, 0, 0.8);
+}
+.progress-bar2{
+  width: 406px;
+  height: 36px;
+  background: #111;
+  border-radius: 13px;
+  padding: 3px;
+  box-sizing: border-box;
+}
+.progress2{
+  width: 10px;
+  height: 30px;
+  background: #3E99F6;
+  border-radius: 13px;
+}
+.text{
+  position: absolute;
+  left: 160px;
+  color: #fdb5ca;
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 36px;
+  display: none;
+}
+.text-blink{
+  animation: animate .7s ease-in-out .1s;
+}
+@keyframes animate {
+  0%{
+    opacity: 1;
+  }
+  50%{
+    opacity: 0.2;
+  }
+  100%{
+    opacity: 1;
+  }
 }

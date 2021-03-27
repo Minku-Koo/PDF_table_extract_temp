@@ -33,7 +33,6 @@
                     var text = document.querySelector('.text');
                     var count = 4;
                     var per = 16;
-                    // var loading = setInterval(animate, 50);
                     var loading = setInterval(getProgress, 500);
 
                     function getProgress(){
@@ -176,8 +175,12 @@
                                     data: formData,
                                     success: function (data) {
                                         if(data.message == 'Files successfully uploaded'){
-                                            location.href = '{{url_for("views.extract_page")}}'+'?fileName='+fileName.split('.')[0];
-                                            // location.href = '{{url_for("views.pre_extract_page")}}'+'?fileName='+fileName.split('.')[0];
+                                            if(confirm("line scale 검사 작업을 진행하시겠습니까?")){
+                                                location.href = '{{url_for("views.pre_extract_page")}}'+'?fileName='+fileName.split('.')[0];
+                                            }
+                                            else{
+                                                location.href = '{{url_for("views.extract_page")}}'+'?fileName='+fileName.split('.')[0];
+                                            }
                                         }
                                     },
                                     error: function (error) {
@@ -199,7 +202,6 @@
 
 	<body>
         <div class="background-grey" style="display:none"></div>
-        <!-- <div class="loading"> -->
         <div class="loading" style="display:none">
             <center><span style='font-size: 50px; color: white;'>Processing...</span></center>
             <div class="percent">0%</div>

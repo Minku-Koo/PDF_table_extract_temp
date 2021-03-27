@@ -3,7 +3,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-18
+# Last modified on 2021-03-28
 #
 
 from flask import (
@@ -207,21 +207,79 @@ def extract_page():
         return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
 
 
+
+@views.route("/pre_extract", methods=['POST'])
+def pre_extract():
+    global detected_areas
+
+    file_name = request.form['fileName']+".pdf"
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
+    file_page_path = os.path.splitext(filepath)[0]
+    filepath = os.path.join(file_page_path, file_name)
+    empty_pages = session['empty_pages']
+    total_page = len(empty_pages)
+    empty_pages = ','.join([str(i) for i in empty_pages])
+
+    line_scale = int(request.form['line_scale'])
+    result = task_split(filepath, file_page_path, split_progress, line_scale = line_scale, pages = empty_pages)
+
+    empty_pages = []
+
+    if result is not None and len(result) > 0:
+        v = {}
+        for page, tables in result.items():
+            bboxs = []
+
+            page_file = file_page_path + f"\\page-{page}.pdf"
+            image_file = file_page_path + f"\\page-{page}.png"
+
+            v['imageHeight'], v['imageWidth'], _ = cv2.cv2.imread(image_file).shape
+
+            for table in tables:
+                bbox = table._bbox
+                bboxs.append( bbox_to_areas(v, bbox, page_file)+f",{v['imageWidth']},{v['imageHeight']}" )
+                
+            bboxs = ";".join(bboxs)
+            result[page] = bboxs
+        
+        for page in result.keys():
+            if result.get(page) is None or result.get(page) == '':
+                empty_pages.append(page)
+
+        print('@'*50)
+        print(empty_pages)
+        session['empty_pages'] = empty_pages
+        print(f'total length: {total_page}\tempty length:{len(empty_pages)}')
+        print('@'*50)
+        
+    else:
+        bboxs = 0
+
+    detected_areas[file_name.replace('.pdf', '')] = result
+
+    resp = jsonify({'message' : 'success'})
+    resp.status_code = 201
+    return resp
+
+
+
+
+
+
+
 # 추출할 pdf파일이 정해졌을때 추출을 진행하는 라우트 (Get 요청으로 pdf파일 명시)
 @views.route("/pre_extract_page", methods=['GET'])
 def pre_extract_page():
-    global detected_areas
-
     fileName = request.args.get("fileName")
 
     # if fileName is not None and page is not None:
     if fileName is not None:
+        empty_pages = session['empty_pages']
 
         return render_template(
             'pre_extract.html',
             fileName=fileName,
-            empty_pages=session['empty_pages'],
-            # page=page
+            empty_pages=empty_pages
         )
 
     else:

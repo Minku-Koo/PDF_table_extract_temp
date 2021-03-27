@@ -4,7 +4,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-16
-# Last modified on 2021-03-17
+# Last modified on 2021-03-28
 #
 
 import os
@@ -31,9 +31,9 @@ from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_a
 
 # from .utils.file import mkdirs
 
-def split(originalFilePath, PDFS_FOLDER, split_progress):
+def split(originalFilePath, PDFS_FOLDER, split_progress, line_scale=40, pages='all'):
     try:
-        extract_pages, total_pages = get_pages(originalFilePath, 'all')
+        extract_pages, total_pages = get_pages(originalFilePath, pages)
 
         (
             filenames,
@@ -45,7 +45,6 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
         ) = ({} for i in range(6))
 
         for page in extract_pages:
-            # self.setProgress( total_pages / page * 100 )
             progress = int( page / total_pages * 100 )
             split_progress['progress'] = progress
 
@@ -82,7 +81,7 @@ def split(originalFilePath, PDFS_FOLDER, split_progress):
             imagedims[page] = get_image_dim(imagepath)
             
             # lattice
-            parser = Lattice2(line_scale=40)
+            parser = Lattice2(line_scale=line_scale)
             tables = parser.extract_tables(filepath)
 
             detected_areas[page] = tables
