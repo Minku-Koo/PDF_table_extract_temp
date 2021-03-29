@@ -10,7 +10,7 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     sheet_name : sheet name
     header : Bold text A or 1 1
     '''    
-    json_file = 'astute-cumulus-158007-52b32148e4df.json'
+    json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
     print(kwargs)
     fmt = cellFormat(
         backgroundColor=color(1, 0.9, 0.9),
@@ -26,7 +26,7 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     batch = batch_updater(doc)
 
     doc.share(value=None,perm_type='anyone', role='writer')
-    spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{doc.id}"
+    spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{doc.id}/edit#gid="
     print(spreadsheet_url)
 
     for i in range(len(tables)):
@@ -86,4 +86,4 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
 
     return [spreadsheet_url+str(l) for l in ws_list]
 
-#make_google_sheets(sheet_name, tables, header="r")
+make_google_sheets(sheet_name, tables, header="r")
