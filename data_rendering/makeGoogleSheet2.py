@@ -5,11 +5,12 @@ import camelot
 import pandas as pd
 from gspread_formatting import *
 
-def make_google_sheets(sheet_name, json_file,tables, header=None, email=None, **kwargs):
+def make_google_sheets(sheet_name=unknown, json_file,tables, header=None, email=None, **kwargs):
     '''
     sheet_name : sheet name
     header : Bold text A or 1 1
     '''    
+    json_file = 'astute-cumulus-158007-52b32148e4df.json'
     print(kwargs)
     fmt = cellFormat(
         backgroundColor=color(1, 0.9, 0.9),
@@ -83,10 +84,6 @@ def make_google_sheets(sheet_name, json_file,tables, header=None, email=None, **
         except:
             break
 
-    print(ws_list)
+    return [spreadsheet_url+str(l) for l in ws_list]
 
-sheet_name = "table.pdf"
-tables = camelot.read_pdf(sheet_name, flavor='lattice', pages='166-168')
-json_file_name = 'astute-cumulus-158007-52b32148e4df.json'
-
-make_google_sheets(sheet_name, json_file_name, tables, header="r")
+#make_google_sheets(sheet_name, tables, header="r")
