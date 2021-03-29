@@ -5,7 +5,7 @@ import camelot
 import pandas as pd
 from gspread_formatting import *
 
-def make_google_sheets(sheet_name=unknown, json_file,tables, header=None, email=None, **kwargs):
+def make_google_sheets(sheet_name, json_file,tables, header=None, email=None, **kwargs):
     '''
     sheet_name : sheet name
     header : Bold text A or 1 1
