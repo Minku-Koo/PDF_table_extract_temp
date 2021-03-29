@@ -26,7 +26,7 @@ from utils.tasks import split as task_split
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
 
-from data_rendering.makeGoogleSheet import make_google_sheet
+from data_rendering.makeGoogleSheet import make_google_sheets
 
 from PyPDF2 import PdfFileReader
 
@@ -340,7 +340,7 @@ def doExtract_page():
             bboxs = ";".join(bboxs)
 
 
-            gs_url = make_google_sheet(gs)
+            gs_url = make_google_sheets(gs, header='c')
 
             # print(f'제이슨:{jsons}')
             # print(f'csv:{csvs}')

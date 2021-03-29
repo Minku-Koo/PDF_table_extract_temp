@@ -16,8 +16,11 @@
         <!--  -->
 
         <!-- JQUERY Tool tips plug-in -->
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/jquery-ui.min.css')}}">
+        <script type="text/javascript" src = "{{url_for('static',filename='js/jquery-ui.min.js')}}"></script>
         <!--  -->
 
 
@@ -548,12 +551,13 @@
 
                     <div id='table_show_type' style='float:right; display:none'>
                         <label class="radio-inline">
-                            <input type="radio" name="optradio" value="gs" onclick='show_gs(table_data)' checked>Google Sheet
+                            <input type="radio" name="showradio" value="gs" onclick='show_gs(table_data)' checked>Google Sheet
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="optradio" value="jss" onclick='show_jss(table_data)'>JSpreadSheet
+                            <input type="radio" name="showradio" value="jss" onclick='show_jss(table_data)'>JSpreadSheet
                         </label>
                     </div>
+                    <br>
 
                     <div id='table_printer'></div>
                 </td>

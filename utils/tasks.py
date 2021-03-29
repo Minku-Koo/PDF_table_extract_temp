@@ -4,7 +4,7 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-16
-# Last modified on 2021-03-28
+# Last modified on 2021-03-29
 #
 
 import os
@@ -177,58 +177,3 @@ def get_file_dim(filepath):
 def get_image_dim(imagepath):
     image = cv2.imread(imagepath)
     return [image.shape[1], image.shape[0]]
-
-'''
-
-def extract():
-    try:
-        # job = session.query(Job).filter(Job.job_id == job_id).first()
-        # rule = session.query(Rule).filter(Rule.rule_id == job.rule_id).first()
-        # file = session.query(File).filter(File.file_id == job.file_id).first()
-
-        # rule_options = json.loads(rule.rule_options)
-        # flavor = rule_options.pop("flavor")
-        # pages = rule_options.pop("pages")
-
-        tables = []
-        filepaths = json.loads(file.filepaths)
-        for p in pages:
-            kwargs = pages[p]
-            kwargs.update(rule_options)
-            parser = (
-                Lattice(**kwargs) if flavor.lower() == "lattice" else Stream(**kwargs)
-            )
-            t = parser.extract_tables(filepaths[p])
-            for _t in t:
-                _t.page = int(p)
-            tables.extend(t)
-        tables = TableList(tables)
-
-        froot, fext = os.path.splitext(file.filename)
-        datapath = os.path.dirname(file.filepath)
-        for f in ["csv", "excel", "json", "html"]:
-            f_datapath = os.path.join(datapath, f)
-            mkdirs(f_datapath)
-            ext = f if f != "excel" else "xlsx"
-            f_datapath = os.path.join(f_datapath, "{}.{}".format(froot, ext))
-            tables.export(f_datapath, f=f, compress=True)
-
-        # for render
-        jsonpath = os.path.join(datapath, "json")
-        jsonpath = os.path.join(jsonpath, "{}.json".format(froot))
-        tables.export(jsonpath, f="json")
-        render_files = {
-            os.path.splitext(os.path.basename(f))[0]: f
-            for f in glob.glob(os.path.join(datapath, "json/*.json"))
-        }
-
-        job.datapath = datapath
-        job.render_files = json.dumps(render_files)
-        job.is_finished = True
-        job.finished_at = dt.datetime.now()
-
-        session.commit()
-        session.close()
-    except Exception as e:
-        logging.exception(e)
-'''

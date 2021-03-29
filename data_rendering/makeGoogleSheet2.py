@@ -85,5 +85,3 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
             break
 
     return [spreadsheet_url+str(l) for l in ws_list]
-
-make_google_sheets(sheet_name, tables, header="r")
