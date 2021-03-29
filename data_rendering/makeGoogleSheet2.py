@@ -11,7 +11,29 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     header : Bold text A or 1 1
     '''    
     json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
-    print(kwargs)
+
+    doc = create_sheets(json_file, sheet_name)
+    batch = batch_updater(doc)
+
+    spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{doc.id}/edit#gid="
+
+    input_data(tables, sheet_name, doc, batch, header)
+    doc.del_worksheet(doc.get_worksheet(0))
+    i = 0
+    ws_list = []
+
+    while 1:
+        try:
+            if doc.get_worksheet(i) == None:
+                break
+            ws_list.append(doc.get_worksheet(i).id)
+            i=i+1
+        except:
+            break
+
+    return [spreadsheet_url+str(l) for l in ws_list]
+
+def input_data(tables, sheet_name, doc, batch, header):
     fmt = cellFormat(
         backgroundColor=color(1, 0.9, 0.9),
         horizontalAlignment='CENTER'
@@ -20,14 +42,6 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     fmt_bottom = cellFormat(borders=Borders(bottom=Border("SOLID", Color(0, 0, 0, 0))))#, horizontalAlignment='CENTER')
     fmt_left = cellFormat(borders=Borders(left=Border("SOLID", Color(0, 0, 0, 0))))#, horizontalAlignment='CENTER')
     fmt_right = cellFormat(borders=Borders(right=Border("SOLID", Color(0, 0, 0, 0))))#, horizontalAlignment='CENTER')    
-
-    gc = gspread.service_account(json_file)
-    doc = gc.create(sheet_name)
-    batch = batch_updater(doc)
-
-    doc.share(value=None,perm_type='anyone', role='writer')
-    spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{doc.id}/edit#gid="
-    print(spreadsheet_url)
 
     for i in range(len(tables)):
         page = tables[i].parsing_report['page']
@@ -71,17 +85,10 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
         batch.format_cell_range(ws, ran[2],fmt_left)
         batch.format_cell_range(ws, ran[3],fmt_right)
         batch.execute()
-    doc.del_worksheet(doc.get_worksheet(0))
-    i = 0
-    ws_list = []
 
-    while 1:
-        try:
-            if doc.get_worksheet(i) == None:
-                break
-            ws_list.append(doc.get_worksheet(i).id)
-            i=i+1
-        except:
-            break
+def create_sheets(json_file, sheet_name):
+    gc = gspread.service_account(json_file)
+    doc = gc.create(sheet_name)
+    doc.share(value=None,perm_type='anyone', role='writer')
 
-    return [spreadsheet_url+str(l) for l in ws_list]
+    return doc
