@@ -10,7 +10,7 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     sheet_name : sheet name
     header : Bold text A or 1 1
     '''    
-    json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
+    json_file = 'astute-cumulus-158007-52b32148e4df.json'
 
     doc = create_sheets(json_file, sheet_name)
     batch = batch_updater(doc)
@@ -91,5 +91,7 @@ def create_sheets(json_file, sheet_name):
     doc = gc.create(sheet_name)
     doc.share(value=None,perm_type='anyone', role='writer')
 
-    return doc
+    return doc 
 
+#tables = camelot.read_pdf("table.pdf", pages="166-168")
+#print(make_google_sheets ("table.pdf", tables, header='r'))
