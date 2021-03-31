@@ -142,6 +142,7 @@
 
                     iframe = document.createElement('iframe');
                     $(iframe).attr('src', url);
+                    $(iframe).css('width', data.table_width[i]+100);
                     document.getElementById('table_printer').appendChild(iframe);
                 }
             }
@@ -230,7 +231,6 @@
                             },
                         ],
                     });
-                    // x_spreadsheet(div);
                 }
             }
 
@@ -327,7 +327,6 @@
                                 show_gs(data);
                                 // show_jss(data);
 
-
                                 if(bboxs != 0){
                                     bboxs = bboxs.split(";");
                                     
@@ -374,9 +373,6 @@
                     var imageHeight = $('#pageImg').height();
 
                     $('.image-decorator div, .image-decorator img').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
-
-                    // $("#wrapper").css('width', 'fit-content');
-                    // $('.image-decorator div').css({'height':'70vh', 'width':(imageWidth/imageHeight*100)*0.7+'vh'});
                     
                     if( detected_areas.hasOwnProperty(String(this_page)) ){
                         page = String(this_page);
