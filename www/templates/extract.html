@@ -139,10 +139,12 @@
                 gs_url = data.gs_url;
                 for(i=0 ; i<gs_url.length ; i++){
                     url = gs_url[i];
+                    console.log(gs_url[i]);
+                    console.log(data.table_width[i]);
 
                     iframe = document.createElement('iframe');
                     $(iframe).attr('src', url);
-                    $(iframe).css('width', data.table_width[i]+100);
+                    $(iframe).css('width', data.table_width[i]+50);
                     document.getElementById('table_printer').appendChild(iframe);
                 }
             }
