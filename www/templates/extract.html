@@ -299,7 +299,7 @@
                 
                 $('#extract').click(function () {
                     $('.loader').addClass('is-active');
-                    console.log($('.loader'));
+
 					var selectedAreas = $('img#pageImg').selectAreas('areas');
                     
                     if (selectedAreas.length > 0) {
@@ -538,7 +538,7 @@
                     </div>
                 </td>
                 
-                <td>
+                <td style="width: 120px;">
                     <div style='position: absolute; top: 10%'>
                         <label class="radio-inline">
                             <input type="radio" name="optradio" value="areas">table_areas
@@ -549,12 +549,12 @@
                         </label>
                     </div>
 
+                    <input type="button" value="검출?" style="font-size: 18px; cursor:pointer;"/>
+                    <br>
                     <input type="button" id="extract" value="추출▶" style="font-size: 18px; cursor:pointer;"/>
                 </td>
                 
                 <td style="vertical-align: top">
-                    <h1>Table Result</h1>
-
                     <div id='table_show_type' style='float:right; display:none'>
                         <label class="radio-inline">
                             <input type="radio" name="showradio" value="gs" onclick='show_gs(table_data)' checked>Google Sheet
