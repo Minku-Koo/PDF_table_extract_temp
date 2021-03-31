@@ -58,6 +58,9 @@
         <!--  -->
 
 
+        <!-- CSS Loader -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='dist/css-loader.css') }}">
+        <!---------------->
         
 	<!-- <link rel="icon" href="{{ url_for('static', filename='css/image/icon.png') }}"> -->
         
@@ -139,8 +142,6 @@
                 gs_url = data.gs_url;
                 for(i=0 ; i<gs_url.length ; i++){
                     url = gs_url[i];
-                    console.log(gs_url[i]);
-                    console.log(data.table_width[i]);
 
                     iframe = document.createElement('iframe');
                     $(iframe).attr('src', url);
@@ -258,6 +259,7 @@
 				});
             
                 $('#get_line_size').click(function () {
+                    $('.loader').addClass("is-active");
 					var selectedAreas = $('img#pageImg').selectAreas('areas');
                     
                     if (selectedAreas.length > 0) {
@@ -281,21 +283,24 @@
                             type: 'POST',
                             success: function (data) {
                                 $("#line_scale").val(data.line_scale);
+                                $('.loader').removeClass('is-active');
                             },
                             error: function (error) {
                                 console.error(error);
+                                $('.loader').removeClass('is-active');
                             }
                         });
                     }
                     else{
                         alert("먼저 영역을 지정해주세요.");
+                        $('.loader').removeClass('is-active');
                     }
 				});
                 
                 $('#extract').click(function () {
+                    $('.loader').addClass('is-active');
+                    console.log($('.loader'));
 					var selectedAreas = $('img#pageImg').selectAreas('areas');
-
-                    // console.log(selectedAreas);
                     
                     if (selectedAreas.length > 0) {
                         const imageWidth = $('#pageImg').width();
@@ -311,7 +316,7 @@
                         }
                         jsons = JSON.stringify(jsons);
                         
-                         $.ajax({
+                        $.ajax({
                             url: '/doExtract',
                             data: {"jsons":jsons, "fileName":"{{fileName}}", "page":this_page, "table_option":table_option, "line_scale":$("#line_scale").val()},
                             dataType:'json',
@@ -349,12 +354,14 @@
                                     $("#pageImg").selectAreas('add', arrs);
 
                                     $("#table_show_type").css("display", "block");
+                                    $('.loader').removeClass('is-active');
                                 }
                             },
                             error: function (error) {
-                              console.error(error);
+                                console.error(error);
+                                $('.loader').removeClass('is-active');
                             }
-                         });
+                        });
                     }
 				});
 
@@ -463,6 +470,7 @@
 	</head>
 
 	<body>
+        <div class="loader loader-default" data-text="Processing..."></div>
         <header>
             <ul>
                 <li onclick='location.href="/"'>HOME</li>
