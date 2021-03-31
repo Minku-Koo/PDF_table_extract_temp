@@ -221,7 +221,7 @@ def input_data(tables, sheet_name, doc, batch, header):
             total_width += maxWidth
 
             batch.set_column_width(ws, GetColAdr(y+1), maxWidth)
-        print(total_width + 45)
+
     batch.execute()
 
         
