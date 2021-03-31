@@ -1,4 +1,4 @@
-import gspread
+﻿import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread.models import Cell
 import camelot
@@ -11,7 +11,7 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     sheet_name : sheet name
     header : Bold text A or 1 1
     '''    
-    json_file = 'astute-cumulus-158007-52b32148e4df.json'
+    json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
 
     doc = create_sheets(json_file, sheet_name)
     batch = batch_updater(doc)
