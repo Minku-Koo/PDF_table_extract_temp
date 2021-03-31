@@ -11,7 +11,8 @@ def make_google_sheets(sheet_name, tables, header=None, email=None, **kwargs):
     sheet_name : sheet name
     header : Bold text A or 1 1
     '''    
-    json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
+    #json_file = './data_rendering/astute-cumulus-158007-52b32148e4df.json'
+    json_file = 'astute-cumulus-158007-52b32148e4df.json'
 
     doc = create_sheets(json_file, sheet_name)
     batch = batch_updater(doc)
@@ -153,7 +154,7 @@ def GetColAdr(col) :
 def input_data(tables, sheet_name, doc, batch, header):
     fmt = cellFormat(
         backgroundColor=color(1, 0.9, 0.9),
-        horizontalAlignment='CENTER'
+        #horizontalAlignment='CENTER'
         )
     fmt_top = cellFormat(borders=Borders(top=Border("SOLID", Color(0, 0, 0, 0))))#, horizontalAlignment='CENTER')
     fmt_bottom = cellFormat(borders=Borders(bottom=Border("SOLID", Color(0, 0, 0, 0))))#, horizontalAlignment='CENTER')
@@ -193,18 +194,12 @@ def input_data(tables, sheet_name, doc, batch, header):
             else:
                 print("Wrong header option")
 
-        maxWidth = 0
+        
+        total_width = 0
         cells = []
         for x in range(len(np_table)):
             for y in range(len(np_table[1])):
                 cells.append(Cell(row=x+1, col=y+1, value=np_table[x][y]))
-
-                value = np_table[x][y]
-                value = str(value)
-                width = GetProperWidth(value, font_size)
-                if(width > maxWidth) :
-                    maxWidth = width
-            batch.set_column_width(ws, GetColAdr(x + 1), maxWidth)
         ws.update_cells(cells)
         ran = ['A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0]),'A1:'+chr(ord('A')+np_table.shape[1]-1)+str(np_table.shape[0])]
         # format_cell_range(ws,[(ran[0],fmt_top), (ran[1],fmt_bottom), (ran[2],fmt_left), (ran[3],fmt_right)])
@@ -213,7 +208,23 @@ def input_data(tables, sheet_name, doc, batch, header):
         batch.format_cell_range(ws, ran[2],fmt_left)
         batch.format_cell_range(ws, ran[3],fmt_right)
 
-        batch.execute()
+        for y in range(len(np_table[1])):
+            maxWidth = 0
+            for x in range(len(np_table)):
+                value = np_table[x][y]
+                value = str(value)
+                width = GetProperWidth(value, font_size)
+                
+                if(width > maxWidth) :
+                    maxWidth = width
+                
+            total_width += maxWidth
+
+            batch.set_column_width(ws, GetColAdr(y+1), maxWidth)
+        print(total_width + 45)
+    batch.execute()
+
+        
 
 def create_sheets(json_file, sheet_name):
     gc = gspread.service_account(json_file)
@@ -222,4 +233,5 @@ def create_sheets(json_file, sheet_name):
 
     return doc 
 
-#tables = camelot.read_pdf("table.pdf", pages="166-168")
+tables = camelot.read_pdf("table.pdf", pages="166-168")
+print(make_google_sheets("table.pdf", tables, header="r"))
