@@ -290,8 +290,8 @@ def pre_extract_page():
 @views.route("/doExtract", methods=['POST'])
 def doExtract_page():
     if request.method == 'POST':
-        file_name = request.form['fileName']
         page = request.form['page']
+        file_name = request.form['fileName']
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file_name)
 
         page_file = f"{filepath}\\page-{page}.pdf"
@@ -314,6 +314,7 @@ def doExtract_page():
             jsons = []
             csvs = []
             col_width = []
+            table_width = []
             bboxs = []
             gs = []
 
@@ -321,14 +322,13 @@ def doExtract_page():
                 df = table.df
                 df.reset_index(drop=True, inplace=True)
 
-                gs.append(df)
+                gs.append(table)
 
                 html.append( df.to_html(index=False, header=False).replace('\\n', '<br>') )
-                # jsons.append( json.loads(df.to_json(orient='split', index=False, force_ascii=False) ) )
-                # jsons.append( df.to_json(orient='records', force_ascii=False) )
 
                 cols, width_sum = getWidth(df)
                 col_width.append( cols )
+                table_width.append( width_sum )
                 csvs.append( df.to_csv(index=False) )
                 df.to_csv(f'{filepath}\\page-{page}-table-{idx}.csv', index=False)
 
@@ -339,17 +339,14 @@ def doExtract_page():
             html = "<br>".join(html)
             bboxs = ";".join(bboxs)
 
-
-            gs_url = make_google_sheets(gs, header='c')
-
-            # print(f'제이슨:{jsons}')
-            # print(f'csv:{csvs}')
+            # 구글시트 호출
+            gs_url = make_google_sheets(file_name, gs, header='c')
             
         else:
             html = "<span>발견된 테이블 없음</span>"
             bboxs = 0
             
-        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'col_width':col_width, 'csvs':csvs, 'gs_url':gs_url})
+        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'col_width':col_width, 'table_width':table_width, 'csvs':csvs, 'gs_url':gs_url})
         # return jsonify({'html':html, 'bboxs':bboxs, 'gs_url':gs_url})
 
 
