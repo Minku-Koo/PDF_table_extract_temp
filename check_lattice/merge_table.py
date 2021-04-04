@@ -40,12 +40,20 @@ def __calc_row_value(horizontal_seg, before_table, now_table, table=True):
     result[0] = sorted(result[0], reverse=True)
     result[1] = sorted(result[1], reverse=True)
     
-    row_value1 = min([result[0][x-1] - result[0][x] for x in range(1, len(result[0]))]) 
-    if table: # table
-        row_value2 = min([result[1][x-1] - result[1][x] for x in range(1, len(result[1]))]) 
-        row_value =  min( row_value1, row_value2 )
-    else: # line
-        row_value =  row_value1
+    if len(result[0]) > 1:
+        row_value1 = min([result[0][x-1] - result[0][x] for x in range(1, len(result[0]))]) 
+        
+        if table: # table
+            if len(result[1]) > 1:
+                row_value2 = min([result[1][x-1] - result[1][x] for x in range(1, len(result[1]))]) 
+                row_value =  min( row_value1, row_value2 )
+            else:
+                row_value =  row_value1
+        else: # line
+            row_value =  row_value1
+            
+    else:
+        row_value = 1
     
     top_value = before_table[0][1] + before_table[0][-1]
     bottom_value = now_table[0][1]
