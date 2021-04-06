@@ -7,6 +7,8 @@
 # minku Koo
 """
 
+import pandas as pd
+
 # calculate table row value > merge or not
 def __calc_row_value(horizontal_seg, before_table, now_table, table=True):
     """
@@ -182,12 +184,12 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
     return result
     
 # add virture vertical line on merge table
-def addVerticalLine(vertical_mask, merge_table, size=1):
+def addVerticalLine(vertical_mask, merge_table, lineSize=1):
     """
     Parameters
         vertical_mask <nd.array> : vertical line threshold
         merge_table <tuple in list> : Tables that require merging
-        size <int> : line size <default = 1>
+        lineSize <int> : line size <default = 1>
     
     returns
         vertical_mask <nd.array> : added vertical line on threshold
@@ -200,11 +202,12 @@ def addVerticalLine(vertical_mask, merge_table, size=1):
         y_value2 = table[-1][1]
         
         # add vertical line, left and right side
-        vertical_mask[y_value1 : y_value2, x_value1-size : x_value1+size] = 255
-        vertical_mask[y_value1 : y_value2, x_value2-size : x_value2+size] = 255
+        vertical_mask[y_value1 : y_value2+lineSize, x_value1-lineSize : x_value1+lineSize] = 255
+        vertical_mask[y_value1 : y_value2+lineSize, x_value2-lineSize : x_value2+lineSize] = 255
 
     return vertical_mask
-        
+
+
 if __name__ ==  "__main__":
     print("I AM MERGE_TABLE MAIN")
     '''
