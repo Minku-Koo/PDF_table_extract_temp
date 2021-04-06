@@ -31,15 +31,15 @@ def show_plot(title, threshold):
     out = 255 - out
     plt.imshow(out)
     # plt.imshow(threshold)
-    plt.savefig("./lib-test/saver/"+title+'.png', dpi=400)
-    # plt.show()
+    # plt.savefig("./lib-test/saver/"+title+'.png', dpi=400)
+    plt.show()
 
 dirpath = "./lib-test/photo/"
 
 # imgname = "page-2"
 # imgname = "short"
 # imgname = "border"
-# imgname = "err"
+imgname = "19"
 
 def hello(dirpath):
     
@@ -114,10 +114,10 @@ def hello(dirpath):
         
         
 
-hello(dirpath)
+# hello(dirpath)
 
 
-imagename = dirpath+imgname+".pngs"
+imagename = dirpath+imgname+".png"
 process_background = False
 threshold_blocksize = 15
 threshold_constant = 0
@@ -183,10 +183,14 @@ print("after add horizontal")
 contours = find_contours(vertical_mask, horizontal_mask)
 print("vertical  + horizontal")
 # show_plot(imgname+"-addOutline",  horizontal_mask + vertical_mask)
+print("vertical  + horizontal contours::",contours)
 
 
 addVerticalList = tableMerge(contours, vertical_segments, horizontal_segments)
+print("addVerticalList", addVerticalList)
+show_plot(imgname+"-tableMerge",  horizontal_mask + vertical_mask)
 vertical_mask = addVerticalLine(vertical_mask, addVerticalList)
+show_plot(imgname+"-addVerticalLine",  horizontal_mask + vertical_mask)
 
 # get contours once again
 contours = find_contours(vertical_mask, horizontal_mask)
