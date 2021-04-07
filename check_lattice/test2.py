@@ -31,7 +31,7 @@ def show_plot(title, threshold):
     out = 255 - out
     plt.imshow(out)
     # plt.imshow(threshold)
-    # plt.savefig("./lib-test/saver/"+title+'.png', dpi=400)
+    # plt.savefig("./lib-test/saver/"+title+'-8-test.png', dpi=400)
     plt.show()
 
 dirpath = "./lib-test/photo/"
@@ -39,7 +39,7 @@ dirpath = "./lib-test/photo/"
 # imgname = "page-2"
 # imgname = "short"
 # imgname = "border"
-imgname = "19"
+imgname = "8"
 
 def hello(dirpath):
     
@@ -163,7 +163,7 @@ horizontal_mask, horizontal_segments = find_lines(
 )
 
 
-
+show_plot("org", vertical_mask+horizontal_mask)
 
         
 print("original")
@@ -178,7 +178,8 @@ print("after add vertical")
 
 horizontal_mask = addOutline("h", horizontal_mask, contours)
 print("after add horizontal")
-# show_plot( horizontal_mask)
+show_plot("addOutline", vertical_mask+horizontal_mask)
+
 
 contours = find_contours(vertical_mask, horizontal_mask)
 print("vertical  + horizontal")
