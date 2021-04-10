@@ -31,7 +31,7 @@ def show_plot(title, threshold):
     out = 255 - out
     plt.imshow(out)
     # plt.imshow(threshold)
-    # plt.savefig("./lib-test/saver/"+title+'-8-test.png', dpi=400)
+    plt.savefig("./lib-test/saver/"+title+'-dott-test.png', dpi=400)
     plt.show()
 
 dirpath = "./lib-test/photo/"
@@ -39,7 +39,7 @@ dirpath = "./lib-test/photo/"
 # imgname = "page-2"
 # imgname = "short"
 # imgname = "border"
-imgname = "8"
+imgname = "dott"
 
 def hello(dirpath):
     
@@ -144,7 +144,7 @@ regions = [[a[0], a[1], b[0]-a[0], b[1]-a[1]]]
 regions = None
 # regions = [[a[0],  b[0],a[1], b[1]]]
 line_scale= 40
-iterations = 0
+iterations = 1
 
 vertical_mask, vertical_segments = find_lines(
     threshold,
@@ -170,7 +170,7 @@ print("original")
 # show_plot(imgname+"-threshold", vertical_mask + horizontal_mask)
 
 contours = find_contours(vertical_mask, horizontal_mask)
-print("contours::",contours)
+print("first camelot contours::",contours)
 
 vertical_mask = addOutline("v", vertical_mask, contours)
 print("after add vertical")
@@ -195,7 +195,7 @@ show_plot(imgname+"-addVerticalLine",  horizontal_mask + vertical_mask)
 
 # get contours once again
 contours = find_contours(vertical_mask, horizontal_mask)
-print(">contours:", contours)
+print(">final contours:", contours)
 print("this is result")
 # show_plot(imgname+"-addVertical",  horizontal_mask + vertical_mask)
 
