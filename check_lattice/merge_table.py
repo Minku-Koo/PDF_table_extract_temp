@@ -2,8 +2,8 @@
 """
 # one table but camelot cannot detected. 
 # it can detected tables as one, and merging
-# start : 20200319
-# update : 20200324
+# start : 20210319
+# update : 20210410
 # minku Koo
 """
 
@@ -98,9 +98,9 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         if not isTable: # if not table, line
             
             #  condition 1 : is same width?
-            if contours[index-1][2] != table[2]: continue
+            if abs( contours[index-1][2] - table[2]) > 2: continue
             #  condition 2 : is same x coordinate?
-            if contours[index-1][0] != table[0]: continue
+            if abs(contours[index-1][0] - table[0]) > 2: continue
             
             
         tables[index] = [table , isTable]
@@ -150,9 +150,9 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
         else:
             # condition check
             # 1 : is same width?
-            if before_table[0][2] != now_table[0][2]: continue
+            if abs( before_table[0][2] - now_table[0][2] ) > 2: continue
             # 2 : is same x coordinate?
-            if before_table[0][0] != now_table[0][0]: continue
+            if abs( before_table[0][0] - now_table[0][0] ) > 2: continue
             # 3 : Are any of the vertical axes of the two tables consistent?
             vs_list = [[], []] # vertical line x coordinate list, table 1 and table 2
             for vs in vertical_segments:
@@ -180,6 +180,7 @@ def tableMerge(contours, vertical_segments, horizontal_segments, scale = 15):
                 
             result.append( sameTable )
             sameTable = []
+        if sameTable != []: result.append( sameTable )
     
     return result
     
