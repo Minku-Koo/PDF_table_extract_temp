@@ -144,7 +144,7 @@ regions = [[a[0], a[1], b[0]-a[0], b[1]-a[1]]]
 regions = None
 # regions = [[a[0],  b[0],a[1], b[1]]]
 line_scale= 40
-iterations = 1
+iterations = 0
 
 vertical_mask, vertical_segments = find_lines(
     threshold,
