@@ -210,7 +210,6 @@ def addVerticalLine(vertical_mask, merge_table, lineSize=1):
 
 
 if __name__ ==  "__main__":
-    print("I AM MERGE_TABLE MAIN")
     '''
     # How to use?
     
@@ -226,4 +225,5 @@ if __name__ ==  "__main__":
     contours = find_contours(vertical_mask, horizontal_mask)
     
     '''
+    pass
 
