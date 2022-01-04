@@ -20,7 +20,12 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from utils.file_path import file_path_select
-from utils.location import get_file_dim, get_regions, get_regions_img, bbox_to_areas
+from utils.location import (
+    get_file_dim,
+    get_regions,
+    get_regions_img,
+    bbox_to_areas
+)
 from utils.tasks import split as task_split
 
 from check_lattice.Lattice_2 import Lattice2
