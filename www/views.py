@@ -51,7 +51,9 @@ detected_areas = {}
 @views.route("/", methods=['GET'])
 def index():
     return render_template('index.html')
-    # return redirect(url_for('views.example')) # 예시 페이지로 리다이렉트시킴 (현재 사용 안함)
+
+    # 예시 페이지로 리다이렉트시킴 (현재 사용 안함)
+    # return redirect(url_for('views.example'))
     
 
 # 각종 테스트 페이지. 현재 사용안함
