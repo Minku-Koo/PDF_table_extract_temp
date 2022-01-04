@@ -259,11 +259,18 @@ def pre_extract():
             page_file = file_page_path + f"\\page-{page}.pdf"
             image_file = file_page_path + f"\\page-{page}.png"
 
-            v['imageHeight'], v['imageWidth'], _ = cv2.cv2.imread(image_file).shape
+            (
+                v['imageHeight'],
+                v['imageWidth'],
+                _
+            ) = cv2.imread(image_file).shape
 
             for table in tables:
                 bbox = table._bbox
-                bboxs.append( bbox_to_areas(v, bbox, page_file)+f",{v['imageWidth']},{v['imageHeight']}" )
+                bboxs.append(
+                    bbox_to_areas(v, bbox, page_file)
+                    +f",{v['imageWidth']},{v['imageHeight']}"
+                )
                 
             bboxs = ";".join(bboxs)
             result[page] = bboxs
@@ -309,7 +316,10 @@ def pre_extract_page():
         )
 
     else:
-        return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
+        return render_template(
+            'error.html',
+            error='해당 페이지를 찾을 수 없습니다.'
+        )
 
 
 # 타겟 pdf 페이지 1장의 테이블을 추출하는 라우트
