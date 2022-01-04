@@ -137,7 +137,11 @@ def uploadPDF():
                 page_file = file_page_path + f"\\page-{page}.pdf"
                 image_file = file_page_path + f"\\page-{page}.png"
 
-                v['imageHeight'], v['imageWidth'], _ = cv2.cv2.imread(image_file).shape
+                (
+                    v['imageHeight'],
+                    v['imageWidth'],
+                    _
+                ) = cv2.imread(image_file).shape
 
                 for table in tables:
                     bbox = table._bbox
@@ -159,7 +163,8 @@ def uploadPDF():
             print('@'*50)
             print(empty_pages)
             session['empty_pages'] = empty_pages
-            print(f'total length: {total_page}\tempty length:{len(empty_pages)}')
+            print(f'total length: {total_page}\
+                \tempty length:{len(empty_pages)}')
             print('@'*50)
             
         else:
@@ -216,7 +221,10 @@ def extract_page():
         )
 
     else:
-        return render_template('error.html', error='해당 페이지를 찾을 수 없습니다.')
+        return render_template(
+            'error.html',
+            error='해당 페이지를 찾을 수 없습니다.'
+        )
 
 
 
@@ -233,7 +241,13 @@ def pre_extract():
     empty_pages = ','.join([str(i) for i in empty_pages])
 
     line_scale = int(request.form['line_scale'])
-    result = task_split(filepath, file_page_path, split_progress, line_scale = line_scale, pages = empty_pages)
+    result = task_split(
+        filepath,
+        file_page_path,
+        split_progress,
+        line_scale = line_scale,
+        pages = empty_pages
+    )
 
     empty_pages = []
 
