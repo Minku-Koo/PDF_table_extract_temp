@@ -3,8 +3,12 @@
 # PDF_table_extract
 #
 # Created by Ji-yong219 on 2021-03-08
-# Last modified on 2021-03-28
+# Last modified on 2022-01-05
 #
+
+import cv2
+import os
+import json
 
 from flask import (
     Flask,
@@ -17,7 +21,11 @@ from flask import (
     current_app,
     session
 )
+import matplotlib.pyplot as plt
+import numpy as np
 from werkzeug.utils import secure_filename
+from PyPDF2 import PdfFileReader
+
 
 from utils.file_path import file_path_select
 from utils.location import (
@@ -27,19 +35,9 @@ from utils.location import (
     bbox_to_areas
 )
 from utils.tasks import split as task_split
-
 from check_lattice.Lattice_2 import Lattice2
 from check_lattice.check_line_scale import GetLineScale
-
 from data_rendering.makeGoogleSheet import make_google_sheets
-
-from PyPDF2 import PdfFileReader
-
-import cv2
-import os
-import json
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 views = Blueprint("views", __name__)
@@ -91,9 +89,13 @@ def uploadPDF():
 
     for file in files:
         if file:
-            # filename = secure_filename(file.filename) # secure_filename은 한글명을 지원하지 않음
+            # secure_filename은 한글명을 지원하지 않음
+            # filename = secure_filename(file.filename)
             filename = file.filename
-            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            filepath = os.path.join(
+                current_app.config['UPLOAD_FOLDER'],
+                filename
+            )
             file_page_path = os.path.splitext(filepath)[0]
 
             # make filename folder
@@ -139,7 +141,10 @@ def uploadPDF():
 
                 for table in tables:
                     bbox = table._bbox
-                    bboxs.append( bbox_to_areas(v, bbox, page_file)+f",{v['imageWidth']},{v['imageHeight']}" )
+                    bboxs.append(
+                        bbox_to_areas(v, bbox, page_file)
+                        + f",{v['imageWidth']},{v['imageHeight']}"
+                    )
                     
                 bboxs = ";".join(bboxs)
                 result[page] = bboxs
