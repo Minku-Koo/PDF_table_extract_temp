@@ -360,13 +360,19 @@ def doExtract_page():
 
                 gs.append(table)
 
-                html.append( df.to_html(index=False, header=False).replace('\\n', '<br>') )
+                html.append(
+                    df.to_html(index=False, header=False)
+                      .replace('\\n', '<br>')
+                )
 
                 cols, width_sum = getWidth(df)
                 col_width.append( cols )
                 table_width.append( width_sum )
                 csvs.append( df.to_csv(index=False) )
-                df.to_csv(f'{filepath}\\page-{page}-table-{idx}.csv', index=False)
+                df.to_csv(
+                    f'{filepath}\\page-{page}-table-{idx}.csv',
+                    index=False
+                )
 
                 
                 bbox = table._bbox
