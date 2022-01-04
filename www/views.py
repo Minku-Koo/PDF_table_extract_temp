@@ -388,7 +388,15 @@ def doExtract_page():
             html = "<span>발견된 테이블 없음</span>"
             bboxs = 0
             
-        return jsonify({'html':html, 'bboxs':bboxs, 'jsons':jsons, 'col_width':col_width, 'table_width':table_width, 'csvs':csvs, 'gs_url':gs_url})
+        return jsonify({
+            'html': html,
+            'bboxs': bboxs,
+            'jsons': jsons,
+            'col_width': col_width,
+            'table_width': table_width,
+            'csvs': csvs,
+            'gs_url': gs_url}
+        )
         # return jsonify({'html':html, 'bboxs':bboxs, 'gs_url':gs_url})
 
 
@@ -420,7 +428,11 @@ def get_line_scale():
 
 # 지정 pdf파일 지정 영역의 테이블을 추출하는 함수
 def extract(regions, page_file, table_option, line_scale=40):
-    # output_camelot = read_pdf(page_file, flavor="lattice", table_regions=regions)
+    # output_camelot = read_pdf(
+        # page_file,
+        # flavor="lattice",
+        # table_regions=regions
+    # )
     tables = None
     line_scale = int(line_scale)
     
